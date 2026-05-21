@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//d/work/**)",
+      "Bash(mkdir -p src/components src/data public)"
+    ]
+  }
+}
