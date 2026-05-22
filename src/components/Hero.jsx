@@ -36,9 +36,11 @@ export default function Hero() {
           className="relative w-36 h-36 mx-auto mb-10"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-aurora-purple via-aurora-pink to-aurora-cyan rounded-full blur-xl opacity-60 animate-pulse-glow" />
-          <div className="relative w-full h-full rounded-full bg-gradient-to-br from-aurora-purple to-aurora-pink flex items-center justify-center text-5xl font-bold">
-            {resumeData.name.split(' ').map(n => n[0]).join('')}
-          </div>
+          <img
+            src="/avatar.jpg"
+            alt="Avatar"
+            className="relative w-full h-full rounded-full object-cover border-4 border-transparent bg-gradient-to-br from-aurora-purple to-aurora-pink"
+          />
         </motion.div>
 
         <motion.h1
