@@ -1,6 +1,7 @@
 // src/components/Hero.jsx
 import { motion } from 'framer-motion'
 import { resumeData } from '../data/resume'
+import avatarImage from '../assets/avatar.jpg'
 
 export default function Hero() {
   return (
@@ -37,7 +38,7 @@ export default function Hero() {
         >
           <div className="absolute inset-0 bg-gradient-to-br from-aurora-purple via-aurora-pink to-aurora-cyan rounded-full blur-xl opacity-60 animate-pulse-glow" />
           <img
-            src="/avatar.jpg"
+            src={avatarImage}
             alt="Avatar"
             className="relative w-full h-full rounded-full object-cover border-4 border-transparent bg-gradient-to-br from-aurora-purple to-aurora-pink"
           />
