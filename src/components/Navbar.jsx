@@ -61,7 +61,7 @@ export default function Navbar() {
           className="text-2xl font-bold gradient-text"
           whileHover={{ scale: 1.05 }}
         >
-          JP
+          Jaslyn
         </motion.a>
 
         <ul className="hidden md:flex gap-8">

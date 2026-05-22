@@ -9,8 +9,8 @@ export default function Footer() {
       <div className="max-w-4xl mx-auto">
         <div className="flex flex-col items-center gap-6">
           {/* Logo */}
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-aurora-purple via-aurora-pink to-aurora-cyan flex items-center justify-center text-2xl font-bold shadow-lg shadow-aurora-purple/30">
-            JP
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-aurora-purple via-aurora-pink to-aurora-cyan flex items-center justify-center text-xl font-bold shadow-lg shadow-aurora-purple/30">
+            Jaslyn
           </div>
 
           {/* Copyright */}
