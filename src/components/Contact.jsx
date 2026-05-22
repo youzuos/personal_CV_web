@@ -30,7 +30,10 @@ export default function Contact() {
               📧
             </div>
             <h3 className="text-lg font-bold text-white mb-2">Email</h3>
-            <p className="text-sm text-slate-400 break-all">{resumeData.contact.emails[0]}</p>
+            <div className="text-sm text-slate-400 space-y-1">
+              <p className="break-all">{resumeData.contact.emails[0]}</p>
+              <p className="break-all">{resumeData.contact.emails[1]}</p>
+            </div>
           </motion.a>
 
           {/* Phone */}
