@@ -12,7 +12,7 @@ export default function Contact() {
     email: language === 'zh' ? '邮箱' : 'Email',
     phone: language === 'zh' ? '电话' : 'Phone',
     location: language === 'zh' ? '位置' : 'Location',
-    locationText: language === 'zh' ? '香港 · 上海' : 'Hong Kong',
+    locationText: language === 'zh' ? '香港 · 上海' : 'Hong Kong · Mainland',
   }
 
   return (
