@@ -1,8 +1,16 @@
 // src/components/Experience.jsx
 import { motion } from 'framer-motion'
 import { resumeData } from '../data/resume'
+import { resumeDataZh } from '../data/resumeZh'
+import { useLanguage } from '../contexts/LanguageContext'
 
 export default function Experience() {
+  const { language } = useLanguage()
+  const data = language === 'zh' ? resumeDataZh : resumeData
+  const t = {
+    title: language === 'zh' ? '经历' : 'Experience',
+  }
+
   return (
     <section id="experience" className="py-24 px-6">
       <div className="max-w-5xl mx-auto">
@@ -12,20 +20,20 @@ export default function Experience() {
           viewport={{ once: true }}
           className="text-4xl md:text-5xl font-bold mb-16 text-center"
         >
-          <span className="gradient-text">Experience</span>
+          <span className="gradient-text">{t.title}</span>
         </motion.h2>
 
         <div className="relative">
           {/* Timeline line */}
           <div className="timeline-line" />
 
-          {resumeData.experience.map((job, index) => (
+          {data.experience.map((job, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
+              initial={{ opacity: 0, x: index % 2 === 0 ? -100 : 100, scale: 0.95 }}
+              whileInView={{ opacity: 1, x: 0, scale: 1 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ delay: index * 0.15, type: "spring", stiffness: 70, damping: 20 }}
               className={`relative flex items-start mb-12 ${
                 index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'
               }`}

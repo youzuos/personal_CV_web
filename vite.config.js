@@ -4,4 +4,14 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   base: '/personal-web/',
+  build: {
+    rollupOptions: {
+      external: ['@emailjs/browser'],
+      output: {
+        globals: {
+          '@emailjs/browser': 'emailjs'
+        }
+      }
+    }
+  }
 })

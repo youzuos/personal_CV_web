@@ -5,9 +5,34 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+    /* Add padding at the top to account for fixed navbar */
+    scroll-padding-top: 100px;
+  }
+
   body {
     @apply bg-aurora-bg text-white antialiased;
     font-family: 'Outfit', system-ui, sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* Scroll snap for main sections */
+  main {
+    scroll-snap-type: y mandatory;
+  }
+
+  section {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    min-height: 100vh;
+    /* Add spacing between sections */
+    margin-bottom: 2rem;
+  }
+
+  /* Remove margin from last section */
+  section:last-child {
+    margin-bottom: 0;
   }
 
   /* Noise texture overlay */
@@ -35,7 +60,7 @@
 
   .glass-card::before {
     content: '';
-    @apply absolute inset-0 opacity-0 transition-opacity duration-500;
+    @apply absolute inset-0 opacity-0 transition-opacity duration-500 pointer-events-none;
     background: linear-gradient(
       135deg,
       rgba(168, 85, 247, 0.08) 0%,
@@ -98,12 +123,17 @@
 
   .btn-gradient::before {
     content: '';
-    @apply absolute inset-0 opacity-0 transition-opacity duration-300;
+    @apply absolute inset-0 opacity-0 transition-opacity duration-300 rounded-full;
     background: linear-gradient(135deg, #ec4899 0%, #06b6d4 100%);
+    z-index: 0;
   }
 
   .btn-gradient:hover::before {
     @apply opacity-100;
+  }
+
+  .btn-gradient span {
+    @apply relative z-10;
   }
 
   .timeline-line {

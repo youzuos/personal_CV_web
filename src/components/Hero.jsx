@@ -1,9 +1,14 @@
 // src/components/Hero.jsx
 import { motion } from 'framer-motion'
 import { resumeData } from '../data/resume'
+import { resumeDataZh } from '../data/resumeZh'
+import { useLanguage } from '../contexts/LanguageContext'
 import avatarImage from '../assets/avatar.jpg'
 
 export default function Hero() {
+  const { language } = useLanguage()
+  const data = language === 'zh' ? resumeDataZh : resumeData
+
   const container = {
     hidden: { opacity: 0 },
     show: {
@@ -22,32 +27,86 @@ export default function Hero() {
 
   return (
     <section className="min-h-screen flex items-center justify-center relative overflow-hidden px-6">
-      {/* Enhanced floating decorations */}
+      {/* Enhanced liquid glass effect - morphing blobs */}
       <motion.div
-        animate={{ rotate: 360, y: [0, -40, 0], scale: [1, 1.1, 1] }}
-        transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-        className="floating-shape absolute top-16 right-16 w-24 h-24 border-2 border-aurora-purple/20 rounded-3xl"
+        animate={{
+          scale: [1, 1.3, 1],
+          rotate: [0, 90, 0],
+          borderRadius: ['30%', '50%', '70%', '50%', '30%']
+        }}
+        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-10 right-10 w-96 h-96 bg-gradient-to-br from-aurora-purple/30 to-aurora-pink/20 blur-3xl"
       />
       <motion.div
-        animate={{ rotate: -360, y: [0, 40, 0] }}
-        transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
-        className="floating-shape absolute bottom-24 right-32 w-12 h-12 bg-gradient-to-br from-aurora-cyan/10 to-aurora-blue/10 rounded-full"
-      />
-      <motion.div
-        animate={{ scale: [1, 1.3, 1], rotate: [0, 90, 0] }}
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-        className="floating-shape absolute top-1/4 left-16 w-6 h-6 bg-gradient-to-br from-aurora-pink/30 to-aurora-purple/30 rounded-lg"
-      />
-      <motion.div
-        animate={{ x: [0, 30, -30, 0], y: [0, -20, 20, 0] }}
+        animate={{
+          scale: [1.2, 1, 1.2],
+          rotate: [0, -90, 0],
+          borderRadius: ['50%', '30%', '50%', '70%', '50%']
+        }}
         transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-        className="floating-shape absolute bottom-1/3 left-20 w-4 h-4 border border-aurora-orange/30 rotate-45"
+        className="absolute bottom-10 left-10 w-80 h-80 bg-gradient-to-br from-aurora-cyan/30 to-aurora-blue/20 blur-3xl"
       />
       <motion.div
-        animate={{ rotate: [0, 180, 360], scale: [1, 1.2, 1] }}
-        transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
-        className="floating-shape absolute top-1/2 right-24 w-8 h-8 border border-aurora-yellow/20 rounded-full opacity-60"
+        animate={{
+          x: [0, 100, 50, 0],
+          y: [0, -50, 50, 0],
+          borderRadius: ['40%', '60%', '40%'],
+          scale: [1, 1.2, 1]
+        }}
+        transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-1/3 left-1/4 w-64 h-64 bg-gradient-to-br from-aurora-orange/20 to-aurora-yellow/20 blur-3xl"
       />
+
+      {/* Floating shapes with liquid motion */}
+      <motion.div
+        animate={{
+          rotate: 360,
+          y: [0, -40, 0],
+          scale: [1, 1.1, 1],
+          borderRadius: ['10%', '30%', '10%']
+        }}
+        transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+        className="floating-shape absolute top-16 right-16 w-24 h-24 border-2 border-aurora-purple/20 backdrop-blur-sm"
+      />
+      <motion.div
+        animate={{
+          rotate: -360,
+          y: [0, 40, 0],
+          borderRadius: ['50%', '30%', '50%']
+        }}
+        transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+        className="floating-shape absolute bottom-24 right-32 w-12 h-12 bg-gradient-to-br from-aurora-cyan/20 to-aurora-blue/20 backdrop-blur-sm rounded-full"
+      />
+      <motion.div
+        animate={{
+          scale: [1, 1.3, 1],
+          rotate: [0, 90, 0],
+          borderRadius: ['20%', '40%', '20%']
+        }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+        className="floating-shape absolute top-1/4 left-16 w-6 h-6 bg-gradient-to-br from-aurora-pink/40 to-aurora-purple/40 backdrop-blur-sm rounded-lg"
+      />
+      <motion.div
+        animate={{
+          x: [0, 30, -30, 0],
+          y: [0, -20, 20, 0],
+          borderRadius: ['10%', '50%', '10%']
+        }}
+        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+        className="floating-shape absolute bottom-1/3 left-20 w-4 h-4 border border-aurora-orange/40 backdrop-blur-sm rotate-45"
+      />
+      <motion.div
+        animate={{
+          rotate: [0, 180, 360],
+          scale: [1, 1.2, 1],
+          borderRadius: ['30%', '70%', '30%']
+        }}
+        transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+        className="floating-shape absolute top-1/2 right-24 w-8 h-8 border border-aurora-yellow/30 backdrop-blur-sm rounded-full opacity-60"
+      />
+
+      {/* Glass overlay layers */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-aurora-bg/50 to-aurora-bg pointer-events-none" />
 
       {/* Grid pattern overlay */}
       <div
@@ -85,7 +144,7 @@ export default function Hero() {
           variants={item}
           className="text-6xl md:text-8xl font-display font-bold mb-4 leading-tight"
         >
-          <span className="gradient-text">{resumeData.name}</span>
+          <span className="gradient-text">{data.name}</span>
         </motion.h1>
 
         {/* Nickname with subtle animation */}
@@ -93,35 +152,35 @@ export default function Hero() {
           variants={item}
           className="text-2xl md:text-3xl font-light text-slate-400 mb-6 tracking-wide"
         >
-          {resumeData.nickname}
+          {data.nickname}
         </motion.p>
 
         {/* Tagline with styled container */}
         <motion.div variants={item} className="mb-12">
           <div className="inline-block glass-card px-6 py-3 rounded-2xl">
             <p className="text-base text-slate-300">
-              {resumeData.tagline}
+              {data.tagline}
             </p>
           </div>
         </motion.div>
 
         {/* Action buttons */}
         <motion.div variants={item} className="flex flex-wrap gap-4 justify-center">
-          {resumeData.contact.linkedin && (
+          {data.contact.linkedin && (
             <motion.a
-              href={resumeData.contact.linkedin}
+              href={data.contact.linkedin}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-gradient px-10"
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.98 }}
             >
-              LinkedIn
+              <span>LinkedIn</span>
             </motion.a>
           )}
-          {resumeData.contact.github && (
+          {data.contact.github && (
             <motion.a
-              href={resumeData.contact.github}
+              href={data.contact.github}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-gradient px-10"
@@ -132,7 +191,7 @@ export default function Hero() {
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.98 }}
             >
-              GitHub
+              <span>GitHub</span>
             </motion.a>
           )}
         </motion.div>

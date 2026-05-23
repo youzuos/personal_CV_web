@@ -1,10 +1,19 @@
 // src/components/Education.jsx
 import { motion } from 'framer-motion'
 import { resumeData } from '../data/resume'
+import { resumeDataZh } from '../data/resumeZh'
+import { useLanguage } from '../contexts/LanguageContext'
 
 export default function Education() {
+  const { language } = useLanguage()
+  const data = language === 'zh' ? resumeDataZh : resumeData
+  const t = {
+    title: language === 'zh' ? '教育' : 'Education',
+    gpa: language === 'zh' ? '绩点' : 'GPA',
+  }
+
   return (
-    <section id="education" className="py-24 px-6">
+    <section id="education" className="px-6">
       <div className="max-w-4xl mx-auto">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
@@ -12,18 +21,18 @@ export default function Education() {
           viewport={{ once: true }}
           className="text-4xl md:text-5xl font-bold mb-16 text-center"
         >
-          <span className="gradient-text">Education</span>
+          <span className="gradient-text">{t.title}</span>
         </motion.h2>
 
         <div className="grid md:grid-cols-2 gap-6">
-          {resumeData.education.map((edu, index) => (
+          {data.education.map((edu, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-              whileHover={{ scale: 1.03, y: -5 }}
+              initial={{ opacity: 0, y: 80, scale: 0.9, rotate: -2 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1, rotate: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ delay: index * 0.15, type: "spring", stiffness: 80, damping: 15 }}
+              whileHover={{ scale: 1.03, y: -8 }}
             >
               <div className="glass-card p-8 h-full gradient-border">
                 {/* Gradient glow */}
@@ -32,12 +41,18 @@ export default function Education() {
                 />
 
                 <div className="relative">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-aurora-purple to-aurora-cyan flex items-center justify-center text-xl font-bold shadow-lg shadow-aurora-purple/30">
-                      {edu.school.split(' ').filter(w => /^[A-Z]/.test(w)).map(w => w[0]).join('').slice(0, 3)}
+                  <div className="flex items-start gap-4 mb-4">
+                    <div className="w-16 h-16 shrink-0 rounded-xl overflow-hidden bg-white flex items-center justify-center shadow-lg shadow-aurora-purple/30 p-2">
+                      <img
+                        src={edu.school.includes('HKU') || edu.school.includes('香港')
+                          ? '/personal-web/logos/HKU_logo.png'
+                          : '/personal-web/logos/USST_logo.png'}
+                        alt={edu.school}
+                        className="w-full h-full object-contain"
+                      />
                     </div>
-                    <div>
-                      <h3 className="font-bold text-white text-lg">{edu.school}</h3>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-bold text-white text-lg leading-tight">{edu.school}</h3>
                       <p className="text-sm text-slate-400">{edu.location}</p>
                     </div>
                   </div>
@@ -47,7 +62,7 @@ export default function Education() {
 
                   {edu.gpa && (
                     <div className="pt-4 border-t border-white/10">
-                      <p className="text-sm text-slate-400">GPA: <span className="text-transparent bg-clip-text bg-gradient-to-r from-aurora-pink to-aurora-purple font-semibold">{edu.gpa}</span></p>
+                      <p className="text-sm text-slate-400">{t.gpa}: <span className="text-transparent bg-clip-text bg-gradient-to-r from-aurora-pink to-aurora-purple font-semibold">{edu.gpa}</span></p>
                     </div>
                   )}
                 </div>

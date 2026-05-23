@@ -29,12 +29,6 @@ export default function Footer() {
             <span>Framer Motion</span>
           </div>
 
-          {/* Aurora badge */}
-          <div className="px-4 py-2 rounded-full bg-gradient-to-r from-aurora-purple/20 to-aurora-cyan/20 border border-white/10">
-            <span className="text-sm bg-gradient-to-r from-aurora-purple to-aurora-cyan bg-clip-text text-transparent font-medium">
-              ✨ Aurora Design
-            </span>
-          </div>
         </div>
       </div>
     </footer>
