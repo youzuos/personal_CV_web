@@ -210,6 +210,18 @@ export default function Navbar() {
             Jaslyn
           </motion.a>
 
+          {/* Language Toggle - Mobile */}
+          <motion.button
+            onClick={toggleLanguage}
+            className="lg:hidden flex items-center gap-1 px-2.5 py-1 rounded-full glass-card text-sm font-medium"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <span className={language === 'en' ? 'text-white' : 'text-slate-400'}>EN</span>
+            <span className="text-slate-500">/</span>
+            <span className={language === 'zh' ? 'text-white' : 'text-slate-400'}>中</span>
+          </motion.button>
+
           {/* Language Toggle - Desktop */}
           <motion.button
             onClick={toggleLanguage}
@@ -283,22 +295,6 @@ export default function Navbar() {
                     )
                   })}
                 </ul>
-
-                {/* Footer - Language Toggle */}
-                <div className="p-6 border-t border-white/10">
-                  <motion.button
-                    onClick={() => {
-                      toggleLanguage()
-                    }}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl glass-card text-base font-medium"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <span className={language === 'en' ? 'text-white' : 'text-slate-400'}>English</span>
-                    <span className="text-slate-500">/</span>
-                    <span className={language === 'zh' ? 'text-white' : 'text-slate-400'}>中文</span>
-                  </motion.button>
-                </div>
               </div>
             </motion.div>
           </>
