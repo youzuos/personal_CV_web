@@ -86,7 +86,7 @@ export default function ContactForm() {
   }
 
   return (
-    <section id="contact-form" className="-mt-[28rem] pb-24 px-6">
+    <section id="contact-form" className="mt-8 md:-mt-[28rem] pb-24 px-6">
       <div className="max-w-2xl mx-auto">
       {/* Configuration Notice */}
       {EMAILJS_CONFIG.serviceId === 'YOUR_SERVICE_ID' && (
