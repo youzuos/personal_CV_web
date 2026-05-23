@@ -19,16 +19,24 @@ import Intro from './components/Intro'
 import { LanguageProvider } from './contexts/LanguageContext'
 
 function App() {
-  const [introComplete, setIntroComplete] = useState(false)
+  const [introComplete, setIntroComplete] = useState(() => {
+    // Check if intro was already shown
+    return localStorage.getItem('introSeen') === 'true'
+  })
 
   // Scroll to top on page load/refresh
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [])
 
+  const handleIntroComplete = () => {
+    localStorage.setItem('introSeen', 'true')
+    setIntroComplete(true)
+  }
+
   return (
     <LanguageProvider>
-      <Intro onComplete={() => setIntroComplete(true)} />
+      <Intro onComplete={handleIntroComplete} />
       {introComplete && (
         <div className="min-h-screen">
           <AuroraBackground />

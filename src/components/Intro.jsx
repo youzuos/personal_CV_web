@@ -14,22 +14,22 @@ export default function Intro({ onComplete }) {
   const greetings = language === 'zh' ? greetingsZh : greetingsEn
 
   useEffect(() => {
-    // Cycle through greetings every 1.5 seconds
+    // Cycle through greetings every 1 second
     const greetingTimer = setInterval(() => {
       setGreetingIndex(prev => (prev + 1) % greetings.length)
-    }, 1500)
+    }, 1000)
 
-    // Start fade out after showing all greetings
+    // Start fade out after showing all greetings (3 seconds total)
     const fadeTimer = setTimeout(() => {
       setPhase('fadeout')
       clearInterval(greetingTimer)
-    }, 6500)
+    }, 3000)
 
     // After fade out animation, mark complete
     const completeTimer = setTimeout(() => {
       setPhase('complete')
       onComplete()
-    }, 7000)
+    }, 3500)
 
     return () => {
       clearInterval(greetingTimer)
