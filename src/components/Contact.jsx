@@ -27,7 +27,7 @@ export default function Contact() {
           <span className="gradient-text">{t.title}</span>
         </motion.h2>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Email */}
           <motion.a
             href={`mailto:${data.contact.emails[0]}`}
@@ -36,7 +36,7 @@ export default function Contact() {
             viewport={{ once: true, margin: "-50px" }}
             transition={{ type: "spring", stiffness: 80, damping: 18 }}
             whileHover={{ y: -8, scale: 1.05 }}
-            className="glass-card p-6 gradient-border text-center group"
+            className="glass-card p-6 gradient-border text-center group min-w-0"
           >
             <motion.div
               initial={{ scale: 0, rotate: -20 }}
@@ -62,7 +62,7 @@ export default function Contact() {
             viewport={{ once: true, margin: "-50px" }}
             transition={{ delay: 0.1, type: "spring", stiffness: 80, damping: 18 }}
             whileHover={{ y: -8, scale: 1.05 }}
-            className="glass-card p-6 gradient-border text-center group"
+            className="glass-card p-6 gradient-border text-center group min-w-0"
           >
             <motion.div
               initial={{ scale: 0, rotate: -20 }}
@@ -84,7 +84,7 @@ export default function Contact() {
             viewport={{ once: true, margin: "-50px" }}
             transition={{ type: "spring", stiffness: 80, damping: 18 }}
             whileHover={{ y: -8, scale: 1.05 }}
-            className="glass-card p-6 gradient-border text-center group"
+            className="glass-card p-6 gradient-border text-center group min-w-0"
           >
             <motion.div
               initial={{ scale: 0, rotate: -20 }}
@@ -106,7 +106,7 @@ export default function Contact() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-50px" }}
           transition={{ delay: 0.3, type: "spring", stiffness: 80 }}
-          className="flex gap-4 justify-center mt-12"
+          className="flex flex-col sm:flex-row gap-4 justify-center mt-12"
         >
           {data.contact.linkedin && (
             <motion.a
