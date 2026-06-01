@@ -27,3 +27,13 @@ server/.env
 .env*.local
 
 .vercel
+
+# Claude Code / agent tooling — not project source
+.claude/
+.agents/
+.playwright-mcp/
+skills-lock.json
+
+# Local-only resume source files (drop a /public/resume.pdf instead for the download link)
+/*.doc
+/*.docx

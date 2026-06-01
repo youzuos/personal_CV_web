@@ -13,6 +13,8 @@ import Skills from './components/Skills'
 import Leadership from './components/Leadership'
 import Footer from './components/Footer'
 import Intro from './components/Intro'
+import ErrorBoundary from './components/ErrorBoundary'
+import SectionSkeleton from './components/SectionSkeleton'
 import { LanguageProvider } from './contexts/LanguageContext'
 
 // Lazy-load heavy below-the-fold sections to shrink the initial bundle
@@ -46,9 +48,11 @@ function App() {
             <Navbar />
             <main>
               <Hero />
-              <Suspense fallback={null}>
-                <AIAnswer />
-              </Suspense>
+              <ErrorBoundary>
+                <Suspense fallback={<SectionSkeleton minHeight="540px" label="Loading AI assistant" />}>
+                  <AIAnswer />
+                </Suspense>
+              </ErrorBoundary>
               <Experience />
               <Education />
               <Projects />
@@ -56,9 +60,11 @@ function App() {
               <Skills />
               <Leadership />
               <Contact />
-              <Suspense fallback={null}>
-                <ContactForm />
-              </Suspense>
+              <ErrorBoundary>
+                <Suspense fallback={<SectionSkeleton minHeight="480px" label="Loading contact form" />}>
+                  <ContactForm />
+                </Suspense>
+              </ErrorBoundary>
             </main>
             <Footer />
           </div>

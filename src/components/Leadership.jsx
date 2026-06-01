@@ -32,6 +32,7 @@ export default function Leadership() {
               viewport={{ once: true, margin: "-50px" }}
               transition={{ delay: index * 0.1, type: "spring", stiffness: 80, damping: 20 }}
               whileHover={{ x: 8, scale: 1.01 }}
+              whileTap={{ scale: 0.98 }}
             >
               <div className="glass-card p-6 gradient-border">
                 <div className="flex items-start gap-4">

@@ -90,7 +90,7 @@ export default function Hero() {
           {data.tagline}
         </motion.p>
 
-        {/* Actions — one primary gradient, one ghost */}
+        {/* Actions — one primary gradient, two ghost */}
         <motion.div variants={item} className="flex flex-wrap gap-3 justify-center">
           {data.contact.linkedin && (
             <motion.a
@@ -117,6 +117,18 @@ export default function Hero() {
               <span aria-hidden>↗</span>
             </motion.a>
           )}
+          <motion.a
+            href="/resume.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            download
+            className="inline-flex items-center gap-2 px-8 py-3 rounded-full text-sm font-semibold text-slate-200 border border-white/15 hover:border-white/30 hover:text-white transition-colors"
+            whileHover={{ y: -2 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            {language === 'zh' ? '下载简历' : 'Download Resume'}
+            <span aria-hidden>↓</span>
+          </motion.a>
         </motion.div>
 
         {/* Quiet scroll hint */}

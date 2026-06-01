@@ -1,8 +1,37 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect, useRef, useId } from 'react'
+import ReactMarkdown from 'react-markdown'
 import { useLanguage } from '../contexts/LanguageContext'
 import { resumeData } from '../data/resume'
 import { resumeDataZh } from '../data/resumeZh'
+
+// Render the markdown that DeepSeek produces (**bold**, *italic*, `code`,
+// lists, headings, links) styled to match the aurora glass theme.
+const markdownComponents = {
+  p: ({ children }) => <p className="mb-2 last:mb-0 whitespace-pre-line">{children}</p>,
+  strong: ({ children }) => <strong className="font-semibold text-white">{children}</strong>,
+  em: ({ children }) => <em className="italic text-slate-100">{children}</em>,
+  ul: ({ children }) => <ul className="list-disc list-outside pl-5 space-y-1 my-2">{children}</ul>,
+  ol: ({ children }) => <ol className="list-decimal list-outside pl-5 space-y-1 my-2">{children}</ol>,
+  li: ({ children }) => <li className="text-slate-200 marker:text-aurora-cyan">{children}</li>,
+  a: ({ href, children }) => (
+    <a href={href} target="_blank" rel="noopener noreferrer" className="text-aurora-cyan underline decoration-aurora-cyan/40 underline-offset-2 hover:decoration-aurora-cyan">{children}</a>
+  ),
+  code: ({ inline, children }) =>
+    inline ? (
+      <code className="px-1 py-0.5 rounded bg-white/10 text-aurora-cyan text-xs">{children}</code>
+    ) : (
+      <code className="block p-2 my-2 rounded bg-black/30 text-xs overflow-x-auto">{children}</code>
+    ),
+  pre: ({ children }) => <pre className="my-2 overflow-x-auto">{children}</pre>,
+  h1: ({ children }) => <h3 className="font-bold text-base mt-2 mb-1 text-white">{children}</h3>,
+  h2: ({ children }) => <h3 className="font-bold text-base mt-2 mb-1 text-white">{children}</h3>,
+  h3: ({ children }) => <h4 className="font-semibold text-sm mt-2 mb-1 text-white">{children}</h4>,
+  blockquote: ({ children }) => (
+    <blockquote className="border-l-2 border-aurora-purple/50 pl-3 my-2 text-slate-300">{children}</blockquote>
+  ),
+  hr: () => <hr className="my-3 border-white/10" />,
+}
 
 // Default to same-origin (works for both Cloudflare Pages Functions and Vite dev proxy).
 // Override via VITE_API_BASE_URL only if the backend is hosted elsewhere.
@@ -14,6 +43,40 @@ const MESSAGE_TYPES = {
   JOB_TITLE: 'job_title',
   JOB_REQUIREMENTS: 'job_requirements',
   CHAT: 'chat'
+}
+
+// Stable id generator: prefer crypto.randomUUID where available, fall back to
+// a millisecond + random string for older browsers without the secure-context UUID API.
+const newId = () =>
+  (typeof crypto !== 'undefined' && crypto.randomUUID)
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2)}`
+
+// Recognize obvious greetings / pleasantries so we don't accept "Hi" as a job title.
+// Kept as a small whitelist on purpose — short real titles like "PM" / "HR" / "CTO"
+// must still be accepted.
+const GREETING_PHRASES = new Set([
+  'hi', 'hii', 'hiii', 'hello', 'hey', 'heya', 'yo', 'hola', 'sup', 'howdy',
+  'hi there', 'hello there', 'hey there',
+  'good morning', 'good afternoon', 'good evening',
+  'morning', 'afternoon', 'evening',
+  '你好', '您好', '嗨', '哈喽', '哈罗', '早', '早安', '早上好', '下午好', '晚上好',
+  '在吗', '在不在', '有人吗', '你是谁'
+])
+
+const isJustGreeting = (text) => {
+  const normalized = text
+    .toLowerCase()
+    .trim()
+    .replace(/[\s!.?。！？～~,，:：]+$/u, '')
+    .replace(/^[\s]+/, '')
+  return GREETING_PHRASES.has(normalized)
+}
+
+const isTooVague = (text) => {
+  // Strip whitespace and Unicode punctuation; if nothing meaningful is left it's not a title.
+  const stripped = text.replace(/[\s\p{P}\p{S}]/gu, '')
+  return stripped.length === 0
 }
 
 export default function AIAnswer() {
@@ -64,6 +127,8 @@ export default function AIAnswer() {
       : "Couldn't reach the AI service. Please try again later — the backend may not be deployed yet.",
     inputLabel: language === 'zh' ? '输入消息' : 'Type your message',
     messagesRegionLabel: language === 'zh' ? 'AI 对话消息' : 'AI conversation messages',
+    reset: language === 'zh' ? '换个职位' : 'Change position',
+    resetAriaLabel: language === 'zh' ? '重置职位并重新开始对话' : 'Reset position and start over',
     exampleQuestions: language === 'zh' ? [
       `为什么${data.name}适合这个职位？`,
       `${data.name}有哪些相关经验？`,
@@ -75,12 +140,26 @@ export default function AIAnswer() {
     ]
   }
 
-  // Initialize conversation
+  // Initialize conversation: type out the greeting just like later AI replies
+  // so the very first message has consistent motion with the rest of the chat.
   useEffect(() => {
+    if (typingTimerRef.current) {
+      clearTimeout(typingTimerRef.current)
+      typingTimerRef.current = null
+    }
+    const id = newId()
     setMessages([
-      { role: 'assistant', content: t.greeting, type: MESSAGE_TYPES.GREETING, isComplete: true }
+      { role: 'assistant', content: '', type: MESSAGE_TYPES.GREETING, id, isComplete: false }
     ])
     lastMessageCount.current = 1
+    startTypingAnimation(t.greeting, id)
+    return () => {
+      if (typingTimerRef.current) {
+        clearTimeout(typingTimerRef.current)
+        typingTimerRef.current = null
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language])
 
   // Auto-scroll to bottom - only scroll when new messages are added, not during typing
@@ -110,6 +189,16 @@ export default function AIAnswer() {
     let index = 0
     const speed = 8 // Faster typing for smoother experience
     let accumulatedContent = ''
+
+    // Reset the target message to empty + incomplete BEFORE the first character
+    // lands. Without this the caller's pre-filled full content would render for
+    // one frame before being wiped and re-typed, producing a visible flash.
+    setMessages(prev => prev.map(msg => {
+      if (msg.id === messageId) {
+        return { ...msg, content: '', isComplete: false }
+      }
+      return msg
+    }))
 
     const type = () => {
       if (index < text.length) {
@@ -148,27 +237,37 @@ export default function AIAnswer() {
   }
 
   const addMessage = (role, content, type = MESSAGE_TYPES.CHAT) => {
-    const id = Date.now() + Math.random()
+    const id = newId()
     setMessages(prev => [...prev, { role, content, type, id, isComplete: true }])
     return id
   }
 
   const addStreamingMessage = () => {
-    const id = Date.now() + Math.random()
+    const id = newId()
     setMessages(prev => [...prev, { role: 'assistant', content: '', type: MESSAGE_TYPES.CHAT, id, isComplete: false, isStreaming: true }])
     return id
   }
 
   const updateStreamingMessage = (id, content) => {
-    // Use requestAnimationFrame to batch updates during streaming
-    requestAnimationFrame(() => {
-      setMessages(prev => prev.map(msg => {
-        if (msg.id === id) {
-          return { ...msg, content }
-        }
-        return msg
-      }))
-    })
+    // React 18 already batches setState in async handlers; the previous rAF
+    // wrapper just shifted updates by an unpredictable frame and added jitter.
+    setMessages(prev => prev.map(msg => {
+      if (msg.id === id) {
+        return { ...msg, content }
+      }
+      return msg
+    }))
+
+    // Keep the latest tokens in view while the answer is being generated,
+    // but only nudge the scroll when the user is already near the bottom so
+    // we don't fight a user who scrolled up to read earlier content.
+    const container = messagesContainerRef.current
+    if (container) {
+      const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight
+      if (distanceFromBottom < 80) {
+        container.scrollTop = container.scrollHeight
+      }
+    }
   }
 
   const completeStreamingMessage = (id, content) => {
@@ -228,12 +327,10 @@ export default function AIAnswer() {
         updateStreamingMessage(messageId, fullResponse)
       }
 
-      // Complete streaming and start typing animation smoothly
+      // Streaming already revealed the text token-by-token; just mark complete.
+      // (Previously a second typing animation re-played the same text from empty,
+      // which made the message appear to vanish and re-type itself.)
       completeStreamingMessage(messageId, fullResponse)
-
-      // Small delay before typing animation to avoid jumpy transition
-      await new Promise(resolve => setTimeout(resolve, 150))
-      startTypingAnimation(fullResponse, messageId)
 
       return fullResponse
     } catch (error) {
@@ -259,11 +356,22 @@ export default function AIAnswer() {
     try {
       // Handle conversation flow
       if (conversationState === MESSAGE_TYPES.GREETING) {
-        // Employer provided position they're hiring for
-        setCollectedInfo(prev => ({ ...prev, jobTitle: trimmed }))
-        setConversationState(MESSAGE_TYPES.JOB_REQUIREMENTS)
-        const msgId = addMessage('assistant', t.askRequirements(trimmed), MESSAGE_TYPES.JOB_REQUIREMENTS)
-        startTypingAnimation(t.askRequirements(trimmed), msgId)
+        // If the visitor is just saying hi (or sent something with no
+        // meaningful content), reply warmly and stay in the GREETING state
+        // instead of accepting "Hi" as the job title.
+        if (isJustGreeting(trimmed) || isTooVague(trimmed)) {
+          const greetingReply = language === 'zh'
+            ? `你好！👋 我是${data.name}的AI助手，可以帮你评估这份简历与你招聘职位的匹配度。请问你想招聘的是什么职位呢？`
+            : `Hi there! 👋 I'm ${data.name}'s AI assistant — I can help you evaluate how well this resume matches your hiring needs. Could you tell me what position you're looking to fill?`
+          const msgId = addMessage('assistant', '', MESSAGE_TYPES.GREETING)
+          startTypingAnimation(greetingReply, msgId)
+        } else {
+          // Employer provided position they're hiring for
+          setCollectedInfo(prev => ({ ...prev, jobTitle: trimmed }))
+          setConversationState(MESSAGE_TYPES.JOB_REQUIREMENTS)
+          const msgId = addMessage('assistant', '', MESSAGE_TYPES.JOB_REQUIREMENTS)
+          startTypingAnimation(t.askRequirements(trimmed), msgId)
+        }
       } else if (conversationState === MESSAGE_TYPES.JOB_REQUIREMENTS) {
         // Employer provided job requirements
         setCollectedInfo(prev => ({ ...prev, jobRequirements: trimmed }))
@@ -306,6 +414,29 @@ export default function AIAnswer() {
   const handleExampleClick = (question) => {
     setInputValue(question)
     inputRef.current?.focus()
+  }
+
+  // Wipe collected job info, abort any in-flight stream/typing, and bring the
+  // conversation back to the initial greeting. Used when the visitor wants to
+  // analyze a different position without reloading the page.
+  const handleReset = () => {
+    abortControllerRef.current?.abort()
+    if (typingTimerRef.current) {
+      clearTimeout(typingTimerRef.current)
+      typingTimerRef.current = null
+    }
+    setIsLoading(false)
+    setIsTyping(false)
+    setCollectedInfo({ jobTitle: '', jobRequirements: '' })
+    setConversationState(MESSAGE_TYPES.GREETING)
+    const id = newId()
+    setMessages([
+      { role: 'assistant', content: '', type: MESSAGE_TYPES.GREETING, id, isComplete: false }
+    ])
+    lastMessageCount.current = 1
+    hasUserInteractedRef.current = false
+    setInputValue('')
+    startTypingAnimation(t.greeting, id)
   }
 
   // Clean up typing timer + abort in-flight requests on unmount
@@ -378,14 +509,14 @@ export default function AIAnswer() {
             className="flex-1 overflow-y-auto p-6 space-y-4"
             style={{ scrollBehavior: 'auto' }}
           >
-            <AnimatePresence mode="popLayout">
+            <AnimatePresence initial={false}>
               {messages.map((msg, index) => (
                 <motion.div
                   key={msg.id || index}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  layout
+                  transition={{ duration: 0.2 }}
                   className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${
@@ -405,9 +536,17 @@ export default function AIAnswer() {
                         <span className="text-xs text-slate-400">AI Assistant</span>
                       </div>
                     )}
-                    <p className="text-sm whitespace-pre-wrap leading-relaxed">
-                      {msg.content}
-                    </p>
+                    {msg.role === 'assistant' ? (
+                      <div className="text-sm leading-relaxed">
+                        <ReactMarkdown components={markdownComponents}>
+                          {msg.content}
+                        </ReactMarkdown>
+                      </div>
+                    ) : (
+                      <p className="text-sm whitespace-pre-wrap leading-relaxed">
+                        {msg.content}
+                      </p>
+                    )}
 
                     {/* Thinking indicator */}
                     {isLoading && msg.role === 'assistant' && msg.isStreaming && !msg.content && (
@@ -433,8 +572,8 @@ export default function AIAnswer() {
                       </div>
                     )}
 
-                    {/* Typing cursor */}
-                    {isTyping && msg.role === 'assistant' && !msg.isComplete && msg.content && (
+                    {/* Cursor while streaming from backend OR during local typing animation */}
+                    {msg.role === 'assistant' && !msg.isComplete && msg.content && (msg.isStreaming || isTyping) && (
                       <motion.span
                         animate={{ opacity: [0, 1, 0] }}
                         transition={{ duration: 0.8, repeat: Infinity }}
@@ -499,19 +638,32 @@ export default function AIAnswer() {
               </motion.button>
             </form>
 
-            {/* Collected Info Display */}
+            {/* Collected Info Display + Reset */}
             {(collectedInfo.jobTitle || collectedInfo.jobRequirements) && (
-              <div className="mt-3 flex flex-wrap gap-2">
-                {collectedInfo.jobTitle && (
-                  <div className="px-3 py-1 rounded-full bg-aurora-purple/20 text-aurora-purple text-xs">
-                    {language === 'zh' ? '招聘职位：' : 'Hiring for: '}{collectedInfo.jobTitle}
-                  </div>
-                )}
-                {collectedInfo.jobRequirements && (
-                  <div className="px-3 py-1 rounded-full bg-aurora-cyan/20 text-aurora-cyan text-xs max-w-[300px]">
-                    {language === 'zh' ? '职位要求：' : 'Requirements: '}{collectedInfo.jobRequirements}
-                  </div>
-                )}
+              <div className="mt-3 flex flex-wrap items-center gap-2 justify-between">
+                <div className="flex flex-wrap gap-2">
+                  {collectedInfo.jobTitle && (
+                    <div className="px-3 py-1 rounded-full bg-aurora-purple/20 text-aurora-purple text-xs">
+                      {language === 'zh' ? '招聘职位：' : 'Hiring for: '}{collectedInfo.jobTitle}
+                    </div>
+                  )}
+                  {collectedInfo.jobRequirements && (
+                    <div className="px-3 py-1 rounded-full bg-aurora-cyan/20 text-aurora-cyan text-xs max-w-[300px]">
+                      {language === 'zh' ? '职位要求：' : 'Requirements: '}{collectedInfo.jobRequirements}
+                    </div>
+                  )}
+                </div>
+                <motion.button
+                  type="button"
+                  onClick={handleReset}
+                  aria-label={t.resetAriaLabel}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-3 py-1 rounded-full bg-white/5 hover:bg-aurora-pink/20 border border-white/10 hover:border-aurora-pink/40 text-slate-400 hover:text-aurora-pink text-xs transition-colors flex items-center gap-1.5"
+                >
+                  <span aria-hidden="true">↻</span>
+                  {t.reset}
+                </motion.button>
               </div>
             )}
           </div>

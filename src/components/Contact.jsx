@@ -36,6 +36,7 @@ export default function Contact() {
             viewport={{ once: true, margin: "-50px" }}
             transition={{ type: "spring", stiffness: 80, damping: 18 }}
             whileHover={{ y: -8, scale: 1.05 }}
+            whileTap={{ scale: 0.97 }}
             className="glass-card p-6 gradient-border text-center group min-w-0"
           >
             <motion.div
@@ -62,6 +63,7 @@ export default function Contact() {
             viewport={{ once: true, margin: "-50px" }}
             transition={{ delay: 0.1, type: "spring", stiffness: 80, damping: 18 }}
             whileHover={{ y: -8, scale: 1.05 }}
+            whileTap={{ scale: 0.97 }}
             className="glass-card p-6 gradient-border text-center group min-w-0"
           >
             <motion.div
@@ -84,6 +86,7 @@ export default function Contact() {
             viewport={{ once: true, margin: "-50px" }}
             transition={{ type: "spring", stiffness: 80, damping: 18 }}
             whileHover={{ y: -8, scale: 1.05 }}
+            whileTap={{ scale: 0.97 }}
             className="glass-card p-6 gradient-border text-center group min-w-0"
           >
             <motion.div

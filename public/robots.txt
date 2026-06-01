@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Sitemap — replace the domain with your real one if it differs
+Sitemap: https://jaslyn.pages.dev/sitemap.xml

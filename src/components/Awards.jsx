@@ -33,6 +33,7 @@ export default function Awards() {
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ delay: Math.min(index * 0.03, 0.5), type: "spring", stiffness: 80 }}
                 whileHover={{ scale: 1.05, x: 5 }}
+                whileTap={{ scale: 0.97 }}
                 className="flex items-start gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors"
               >
                 <motion.span
