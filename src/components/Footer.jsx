@@ -19,7 +19,7 @@ export default function Footer() {
           </p>
 
           {/* Tech stack */}
-          <div className="flex items-center gap-4 text-sm text-slate-500">
+          <div className="flex items-center gap-4 text-sm text-slate-400">
             <span>React</span>
             <span className="text-aurora-purple">•</span>
             <span>Vite</span>

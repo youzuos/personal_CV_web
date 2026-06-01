@@ -1,10 +1,12 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useId } from 'react'
 import { useLanguage } from '../contexts/LanguageContext'
 import { resumeData } from '../data/resume'
 import { resumeDataZh } from '../data/resumeZh'
 
-const API_BASE_URL = 'http://localhost:3002'
+// Default to same-origin (works for both Cloudflare Pages Functions and Vite dev proxy).
+// Override via VITE_API_BASE_URL only if the backend is hosted elsewhere.
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? ''
 
 // Message types
 const MESSAGE_TYPES = {
@@ -26,8 +28,12 @@ export default function AIAnswer() {
   const [collectedInfo, setCollectedInfo] = useState({ jobTitle: '', jobRequirements: '' })
 
   const inputRef = useRef(null)
+  const inputId = useId()
   const typingTimerRef = useRef(null)
   const lastMessageCount = useRef(0)
+  const messagesContainerRef = useRef(null)
+  const abortControllerRef = useRef(null)
+  const hasUserInteractedRef = useRef(false)
 
   const t = {
     title: language === 'zh' ? 'AI 助手' : 'AI Assistant',
@@ -53,6 +59,11 @@ export default function AIAnswer() {
     notJobRelated: language === 'zh'
       ? '抱歉，我只能回答与这份简历和职位匹配相关的问题。请问有什么关于这份简历或职位的问题我可以帮你解答吗？'
       : 'Sorry, I can only answer questions related to this resume and job matching. Is there anything about this resume or the position I can help you with?',
+    networkError: language === 'zh'
+      ? '暂时连不上 AI 服务，请稍后再试。如果你是网站访问者，作者可能还没把后端部署上线。'
+      : "Couldn't reach the AI service. Please try again later — the backend may not be deployed yet.",
+    inputLabel: language === 'zh' ? '输入消息' : 'Type your message',
+    messagesRegionLabel: language === 'zh' ? 'AI 对话消息' : 'AI conversation messages',
     exampleQuestions: language === 'zh' ? [
       `为什么${data.name}适合这个职位？`,
       `${data.name}有哪些相关经验？`,
@@ -74,7 +85,7 @@ export default function AIAnswer() {
 
   // Auto-scroll to bottom - only scroll when new messages are added, not during typing
   useEffect(() => {
-    const container = document.getElementById('messages-container')
+    const container = messagesContainerRef.current
     const newMessageCount = messages.length
 
     // Only scroll when a new message is added (not during typing animation)
@@ -86,9 +97,9 @@ export default function AIAnswer() {
     }
   }, [messages])
 
-  // Focus input on load and after messages
+  // Re-focus input ONLY after a user-initiated turn completes; never on initial mount
   useEffect(() => {
-    if (!isLoading && !isTyping) {
+    if (hasUserInteractedRef.current && !isLoading && !isTyping) {
       inputRef.current?.focus()
     }
   }, [isLoading, isTyping])
@@ -170,7 +181,7 @@ export default function AIAnswer() {
 
     // Scroll to bottom after streaming is complete, before typing animation
     setTimeout(() => {
-      const container = document.getElementById('messages-container')
+      const container = messagesContainerRef.current
       if (container) {
         container.scrollTop = container.scrollHeight
       }
@@ -178,10 +189,15 @@ export default function AIAnswer() {
   }
 
   const getStreamingResponse = async (userMessage, history) => {
+    abortControllerRef.current?.abort()
+    const controller = new AbortController()
+    abortControllerRef.current = controller
+
     try {
       const response = await fetch(`${API_BASE_URL}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
         body: JSON.stringify({
           message: userMessage,
           history: history,
@@ -194,7 +210,9 @@ export default function AIAnswer() {
       })
 
       if (!response.ok) {
-        throw new Error('API request failed')
+        const err = new Error('API request failed')
+        err.code = 'API_ERROR'
+        throw err
       }
 
       const reader = response.body.getReader()
@@ -219,7 +237,10 @@ export default function AIAnswer() {
 
       return fullResponse
     } catch (error) {
-      console.error('Streaming error:', error)
+      if (error.name === 'AbortError') return
+      if (import.meta.env.DEV) console.error('Streaming error:', error)
+      // Tag network-style failures so the caller can show a clearer message
+      if (!error.code) error.code = 'NETWORK_ERROR'
       throw error
     }
   }
@@ -227,6 +248,8 @@ export default function AIAnswer() {
   const handleSendMessage = async () => {
     const trimmed = inputValue.trim()
     if (!trimmed || isLoading) return
+
+    hasUserInteractedRef.current = true
 
     // Add user message
     addMessage('user', trimmed)
@@ -256,7 +279,11 @@ export default function AIAnswer() {
         await getStreamingResponse(trimmed, messages)
       }
     } catch (error) {
-      addMessage('assistant', t.notJobRelated, MESSAGE_TYPES.CHAT)
+      // Distinguish network/API failure from anything else so users know the chat is unreachable
+      const message = error.code === 'NETWORK_ERROR' || error.code === 'API_ERROR'
+        ? t.networkError
+        : t.notJobRelated
+      addMessage('assistant', message, MESSAGE_TYPES.CHAT)
     } finally {
       setIsLoading(false)
     }
@@ -281,14 +308,22 @@ export default function AIAnswer() {
     inputRef.current?.focus()
   }
 
-  // Clean up typing timer
+  // Clean up typing timer + abort in-flight requests on unmount
   useEffect(() => {
     return () => {
       if (typingTimerRef.current) {
         clearTimeout(typingTimerRef.current)
       }
+      abortControllerRef.current?.abort()
     }
   }, [])
+
+  // Cancel in-flight requests when language changes mid-stream
+  useEffect(() => {
+    return () => {
+      abortControllerRef.current?.abort()
+    }
+  }, [language])
 
   return (
     <section id="ai-answer" className="py-24 px-6 relative overflow-hidden">
@@ -326,18 +361,21 @@ export default function AIAnswer() {
           <p className="text-slate-400">{t.subtitle}</p>
         </motion.div>
 
-        {/* Chat Container - Fixed size */}
+        {/* Chat Container - Responsive height with flex column layout */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="glass-card p-0 gradient-border overflow-hidden"
-          style={{ height: '650px' }}
+          className="glass-card p-0 gradient-border overflow-hidden flex flex-col h-[min(650px,75vh)] min-h-[420px]"
         >
-          {/* Messages Area - Fixed height with scroll */}
+          {/* Messages Area - Flex grow, scrolls within */}
           <div
-            id="messages-container"
-            className="h-[480px] overflow-y-auto p-6 space-y-4"
+            ref={messagesContainerRef}
+            role="log"
+            aria-live="polite"
+            aria-relevant="additions text"
+            aria-label={t.messagesRegionLabel}
+            className="flex-1 overflow-y-auto p-6 space-y-4"
             style={{ scrollBehavior: 'auto' }}
           >
             <AnimatePresence mode="popLayout">
@@ -417,7 +455,7 @@ export default function AIAnswer() {
               exit={{ opacity: 0, height: 0 }}
               className="px-6 py-2 border-t border-white/5"
             >
-              <p className="text-xs text-slate-500 mb-2">
+              <p className="text-xs text-slate-400 mb-2">
                 {language === 'zh' ? '示例问题：' : 'Example questions:'}
               </p>
               <div className="flex flex-wrap gap-2">
@@ -437,14 +475,17 @@ export default function AIAnswer() {
           {/* Input Area */}
           <div className="border-t border-white/10 p-4">
             <form onSubmit={handleSubmit} className="flex gap-3">
+              <label htmlFor={inputId} className="sr-only">{t.inputLabel}</label>
               <input
                 ref={inputRef}
+                id={inputId}
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder={t.placeholder}
                 disabled={isLoading || isTyping}
+                autoComplete="off"
                 className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-aurora-purple/50 transition-colors disabled:opacity-50"
               />
               <motion.button

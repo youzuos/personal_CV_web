@@ -13,7 +13,20 @@ export default function Intro({ onComplete }) {
 
   const greetings = language === 'zh' ? greetingsZh : greetingsEn
 
+  const skip = () => {
+    setPhase('complete')
+    onComplete()
+  }
+
   useEffect(() => {
+    // Honor reduced-motion: skip the intro entirely
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (prefersReducedMotion) {
+      setPhase('complete')
+      onComplete()
+      return
+    }
+
     // Cycle through greetings every 1 second
     const greetingTimer = setInterval(() => {
       setGreetingIndex(prev => (prev + 1) % greetings.length)
@@ -31,10 +44,23 @@ export default function Intro({ onComplete }) {
       onComplete()
     }, 3500)
 
+    // ESC to skip
+    const handleKey = (e) => {
+      if (e.key === 'Escape') {
+        clearInterval(greetingTimer)
+        clearTimeout(fadeTimer)
+        clearTimeout(completeTimer)
+        setPhase('complete')
+        onComplete()
+      }
+    }
+    window.addEventListener('keydown', handleKey)
+
     return () => {
       clearInterval(greetingTimer)
       clearTimeout(fadeTimer)
       clearTimeout(completeTimer)
+      window.removeEventListener('keydown', handleKey)
     }
   }, [greetings.length, onComplete])
 
@@ -50,6 +76,15 @@ export default function Intro({ onComplete }) {
           transition={{ duration: 0.5 }}
           className="fixed inset-0 z-50 flex items-center justify-center bg-aurora-bg"
         >
+          {/* Skip button */}
+          <button
+            onClick={skip}
+            className="absolute top-6 right-6 z-20 px-4 py-2 rounded-full text-xs font-medium tracking-wider uppercase text-slate-300 bg-white/5 border border-white/10 hover:bg-white/10 hover:text-white transition-colors"
+            aria-label={language === 'zh' ? '跳过开场动画' : 'Skip intro'}
+          >
+            {language === 'zh' ? '跳过' : 'Skip'}
+          </button>
+
           {/* Liquid glass blobs */}
           <motion.div
             animate={{

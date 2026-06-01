@@ -1,6 +1,6 @@
 // src/components/ContactForm.jsx
 import { motion, AnimatePresence } from 'framer-motion'
-import { useState } from 'react'
+import { useState, useId } from 'react'
 import { useLanguage } from '../contexts/LanguageContext'
 
 // EmailJS configuration - user needs to replace with their own values
@@ -12,6 +12,8 @@ const EMAILJS_CONFIG = {
 
 export default function ContactForm() {
   const { language } = useLanguage()
+  const formId = useId()
+  const fieldId = (name) => `${formId}-${name}`
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -37,15 +39,18 @@ export default function ContactForm() {
       message: language === 'zh' ? '请输入您的消息...' : 'Please share your thoughts or inquiries...'
     },
     configNote: language === 'zh'
-      ? '⚠️ 需要配置 EmailJS：请在 ContactForm.jsx 中填入您的 service_id、template_id 和 public_key'
-      : '⚠️ EmailJS required: Add your service_id, template_id and public_key in ContactForm.jsx'
+      ? '需要配置 EmailJS：请在环境变量中设置 VITE_EMAILJS_SERVICE_ID、VITE_EMAILJS_TEMPLATE_ID 和 VITE_EMAILJS_PUBLIC_KEY'
+      : 'EmailJS not configured: set VITE_EMAILJS_SERVICE_ID, VITE_EMAILJS_TEMPLATE_ID and VITE_EMAILJS_PUBLIC_KEY in your environment'
   }
+
+  const isEmailJsConfigured = Boolean(
+    EMAILJS_CONFIG.serviceId && EMAILJS_CONFIG.templateId && EMAILJS_CONFIG.publicKey
+  )
 
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    // Check if EmailJS is configured
-    if (EMAILJS_CONFIG.serviceId === 'YOUR_SERVICE_ID') {
+    if (!isEmailJsConfigured) {
       alert(t.configNote)
       return
     }
@@ -75,7 +80,7 @@ export default function ContactForm() {
       // Reset success message after 5 seconds
       setTimeout(() => setStatus('idle'), 5000)
     } catch (error) {
-      console.error('EmailJS error:', error)
+      if (import.meta.env.DEV) console.error('EmailJS error:', error)
       setStatus('error')
       setTimeout(() => setStatus('idle'), 5000)
     }
@@ -86,16 +91,33 @@ export default function ContactForm() {
   }
 
   return (
-    <section id="contact-form" className="mt-8 md:-mt-[28rem] pb-24 px-6">
+    <section id="contact-form" className="pb-24 px-6">
       <div className="max-w-2xl mx-auto">
       {/* Configuration Notice */}
-      {EMAILJS_CONFIG.serviceId === 'YOUR_SERVICE_ID' && (
+      {!isEmailJsConfigured && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
+          role="alert"
           className="mb-6 p-4 rounded-xl bg-aurora-orange/20 border border-aurora-orange/30"
         >
-          <p className="text-sm text-aurora-orange">{t.configNote}</p>
+          <p className="text-sm text-aurora-orange flex items-start gap-2">
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="w-4 h-4 mt-0.5 shrink-0"
+            >
+              <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+            <span>{t.configNote}</span>
+          </p>
           <p className="text-xs text-slate-400 mt-2">
             {language === 'zh'
               ? '1. 注册 '
@@ -104,8 +126,8 @@ export default function ContactForm() {
               EmailJS.com
             </a>
             {language === 'zh'
-              ? ' 获取免费账户\n2. 创建 Email Service\n3. 创建 Email Template\n4. 填入配置信息\n5. 安装: npm install @emailjs/browser'
-              : ' for free account\n2. Create Email Service\n3. Create Email Template\n4. Fill in your credentials\n5. Install: npm install @emailjs/browser'}
+              ? ' 获取免费账户\n2. 创建 Email Service\n3. 创建 Email Template\n4. 配置环境变量\n5. 重启开发服务器'
+              : ' for a free account\n2. Create an Email Service\n3. Create an Email Template\n4. Add the env variables\n5. Restart the dev server'}
           </p>
         </motion.div>
       )}
@@ -150,13 +172,15 @@ export default function ContactForm() {
         <div className="space-y-4">
           {/* Name */}
           <div>
-            <label className="block text-sm text-slate-400 mb-2">{t.nameLabel}</label>
+            <label htmlFor={fieldId('name')} className="block text-sm text-slate-400 mb-2">{t.nameLabel}</label>
             <input
+              id={fieldId('name')}
               type="text"
               name="name"
               value={formData.name}
               onChange={handleChange}
               required
+              autoComplete="name"
               placeholder={t.placeholders.name}
               className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-aurora-purple/50 transition-colors"
             />
@@ -164,13 +188,16 @@ export default function ContactForm() {
 
           {/* Email */}
           <div>
-            <label className="block text-sm text-slate-400 mb-2">{t.emailLabel}</label>
+            <label htmlFor={fieldId('email')} className="block text-sm text-slate-400 mb-2">{t.emailLabel}</label>
             <input
+              id={fieldId('email')}
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
               required
+              autoComplete="email"
+              inputMode="email"
               placeholder={t.placeholders.email}
               className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-aurora-purple/50 transition-colors"
             />
@@ -178,13 +205,15 @@ export default function ContactForm() {
 
           {/* Subject */}
           <div>
-            <label className="block text-sm text-slate-400 mb-2">{t.subjectLabel}</label>
+            <label htmlFor={fieldId('subject')} className="block text-sm text-slate-400 mb-2">{t.subjectLabel}</label>
             <input
+              id={fieldId('subject')}
               type="text"
               name="subject"
               value={formData.subject}
               onChange={handleChange}
               required
+              autoComplete="off"
               placeholder={t.placeholders.subject}
               className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-aurora-purple/50 transition-colors"
             />
@@ -192,12 +221,14 @@ export default function ContactForm() {
 
           {/* Message */}
           <div>
-            <label className="block text-sm text-slate-400 mb-2">{t.messageLabel}</label>
+            <label htmlFor={fieldId('message')} className="block text-sm text-slate-400 mb-2">{t.messageLabel}</label>
             <textarea
+              id={fieldId('message')}
               name="message"
               value={formData.message}
               onChange={handleChange}
               required
+              autoComplete="off"
               rows={5}
               placeholder={t.placeholders.message}
               className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-aurora-purple/50 transition-colors resize-none"

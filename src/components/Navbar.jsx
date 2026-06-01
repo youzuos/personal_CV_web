@@ -8,7 +8,6 @@ const navItemsEn = [
   { name: 'AI Answer', href: '#ai-answer' },
   { name: 'Experience', href: '#experience' },
   { name: 'Education', href: '#education' },
-  { name: 'Photos', href: '#photo-wall' },
   { name: 'Projects', href: '#projects' },
   { name: 'Awards', href: '#awards' },
   { name: 'Skills', href: '#skills' },
@@ -21,7 +20,6 @@ const navItemsZh = [
   { name: 'AI答案', href: '#ai-answer' },
   { name: '经历', href: '#experience' },
   { name: '教育', href: '#education' },
-  { name: '照片', href: '#photo-wall' },
   { name: '项目', href: '#projects' },
   { name: '荣誉', href: '#awards' },
   { name: '技能', href: '#skills' },
@@ -38,40 +36,67 @@ export default function Navbar() {
   const navItems = language === 'zh' ? navItemsZh : navItemsEn
 
   useEffect(() => {
-    const handleScroll = () => {
+    let rafId = null
+
+    const compute = () => {
+      rafId = null
       setIsScrolled(window.scrollY > 50)
 
+      // Reset active state near the top of the page
+      if (window.scrollY < 100) {
+        setActiveSection('')
+        return
+      }
+
       // Update active section
-      const sections = navItems.map(item => item.href.slice(1))
+      const sections = navItems
+        .map(item => item.href.slice(1))
+        .filter(Boolean)
+      let matched = ''
       for (const section of sections) {
         const element = document.getElementById(section)
         if (element) {
           const rect = element.getBoundingClientRect()
           if (rect.top <= 100 && rect.bottom >= 100) {
-            setActiveSection(section)
+            matched = section
             break
           }
         }
       }
+      setActiveSection(matched)
     }
-    window.addEventListener('scroll', handleScroll)
-    handleScroll()
-    return () => window.removeEventListener('scroll', handleScroll)
+
+    const handleScroll = () => {
+      // Throttle to one update per animation frame
+      if (rafId !== null) return
+      rafId = requestAnimationFrame(compute)
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    compute()
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      if (rafId !== null) cancelAnimationFrame(rafId)
+    }
   }, [navItems])
 
   // Close mobile menu when clicking a link
   const scrollToSection = (e, href) => {
     e.preventDefault()
+    setIsMobileMenuOpen(false)
+
     // Scroll to top when href is '#'
     if (href === '#' || href === '#hero') {
       window.scrollTo({ top: 0, behavior: 'smooth' })
-      setIsMobileMenuOpen(false)
+      // Clear hash so the URL stays clean
+      window.history.replaceState(null, '', window.location.pathname + window.location.search)
       return
     }
     const element = document.querySelector(href)
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' })
-      setIsMobileMenuOpen(false)
+      // Keep deep-linkable URL by updating the hash without triggering jump
+      window.history.pushState(null, '', href)
     }
   }
 
@@ -118,51 +143,21 @@ export default function Navbar() {
       }`} />
 
       <div className="relative max-w-6xl mx-auto px-4 sm:px-6 flex justify-between items-center">
-        {/* Left Side - Mobile Menu Button */}
+        {/* Left Side - Logo */}
         <div className="flex items-center gap-2 relative z-10">
-          {/* Mobile Menu Button */}
-          <motion.button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-2 rounded-full glass-card relative z-20"
-            whileTap={{ scale: 0.95 }}
-            aria-label="Toggle menu"
+          <motion.a
+            href="#"
+            onClick={(e) => scrollToSection(e, '#')}
+            className="text-lg sm:text-xl font-display font-bold gradient-text"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.98 }}
           >
-            <AnimatePresence mode="wait">
-              {!isMobileMenuOpen ? (
-                <motion.svg
-                  key="menu"
-                  initial={{ rotate: -90, opacity: 0 }}
-                  animate={{ rotate: 0, opacity: 1 }}
-                  exit={{ rotate: 90, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="w-5 h-5 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </motion.svg>
-              ) : (
-                <motion.svg
-                  key="close"
-                  initial={{ rotate: 90, opacity: 0 }}
-                  animate={{ rotate: 0, opacity: 1 }}
-                  exit={{ rotate: -90, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="w-5 h-5 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </motion.svg>
-              )}
-            </AnimatePresence>
-          </motion.button>
+            Jaslyn
+          </motion.a>
         </div>
 
         {/* Desktop Navigation Links */}
-        <ul className="hidden lg:flex items-center gap-1 relative z-10">
+        <ul className="hidden xl:flex items-center gap-1 relative z-10">
           {navItems.map((item) => {
             const isActive = activeSection === item.href.slice(1)
             return (
@@ -197,23 +192,12 @@ export default function Navbar() {
           })}
         </ul>
 
-        {/* Right Side - Logo & Language */}
+        {/* Right Side - Language & Mobile Menu */}
         <div className="flex items-center gap-2 relative z-10">
-          {/* Logo */}
-          <motion.a
-            href="#"
-            onClick={(e) => scrollToSection(e, '#')}
-            className="text-lg sm:text-xl font-display font-bold gradient-text"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            Jaslyn
-          </motion.a>
-
-          {/* Language Toggle - Mobile */}
+          {/* Language Toggle */}
           <motion.button
             onClick={toggleLanguage}
-            className="lg:hidden flex items-center gap-1 px-2.5 py-1 rounded-full glass-card text-sm font-medium"
+            className="flex items-center gap-1 px-2.5 py-1 lg:px-3 lg:py-1.5 rounded-full glass-card text-sm font-medium"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -222,16 +206,45 @@ export default function Navbar() {
             <span className={language === 'zh' ? 'text-white' : 'text-slate-400'}>中</span>
           </motion.button>
 
-          {/* Language Toggle - Desktop */}
+          {/* Mobile Menu Button */}
           <motion.button
-            onClick={toggleLanguage}
-            className="hidden lg:flex items-center gap-1 px-3 py-1.5 rounded-full glass-card text-sm font-medium"
-            whileHover={{ scale: 1.05 }}
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="xl:hidden p-2 rounded-full glass-card relative z-20"
             whileTap={{ scale: 0.95 }}
+            aria-label="Toggle menu"
+            aria-expanded={isMobileMenuOpen}
           >
-            <span className={language === 'en' ? 'text-white' : 'text-slate-400'}>EN</span>
-            <span className="text-slate-500">/</span>
-            <span className={language === 'zh' ? 'text-white' : 'text-slate-400'}>中</span>
+            <AnimatePresence mode="wait">
+              {!isMobileMenuOpen ? (
+                <motion.svg
+                  key="menu"
+                  initial={{ rotate: -90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: 90, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="w-5 h-5 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </motion.svg>
+              ) : (
+                <motion.svg
+                  key="close"
+                  initial={{ rotate: 90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: -90, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="w-5 h-5 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </motion.svg>
+              )}
+            </AnimatePresence>
           </motion.button>
         </div>
       </div>
@@ -246,7 +259,7 @@ export default function Navbar() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-10 lg:hidden"
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-10 xl:hidden"
               onClick={() => setIsMobileMenuOpen(false)}
             />
 
@@ -256,7 +269,7 @@ export default function Navbar() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: '-100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed top-0 left-0 bottom-0 w-[80%] max-w-sm glass-card z-20 lg:hidden overflow-y-auto"
+              className="fixed top-0 left-0 bottom-0 w-[80%] max-w-sm glass-card z-20 xl:hidden overflow-y-auto"
             >
               <div className="flex flex-col h-full">
                 {/* Header */}

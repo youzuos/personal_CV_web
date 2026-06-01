@@ -9,6 +9,8 @@ export default function ParticleBackground() {
     const ctx = canvas.getContext('2d')
     let animationFrameId
 
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
     const resizeCanvas = () => {
       canvas.width = window.innerWidth
       canvas.height = window.innerHeight
@@ -18,7 +20,7 @@ export default function ParticleBackground() {
     window.addEventListener('resize', resizeCanvas)
 
     // 粒子配置
-    const particleCount = 50
+    const particleCount = 25
     const particles = []
 
     class Particle {
@@ -37,7 +39,7 @@ export default function ParticleBackground() {
       }
 
       getRandomColor() {
-        const colors = ['#a855f7', '#ec4899', '#06b6d4', '#3b82f6']
+        const colors = ['#ffffff', '#e9d5ff', '#f5f3ff']
         return colors[Math.floor(Math.random() * colors.length)]
       }
 
@@ -64,7 +66,7 @@ export default function ParticleBackground() {
       particles.push(new Particle())
     }
 
-    // 鼠标互动
+    // 鼠标互动（监听 window，因为 canvas 在 -z-5 层接收不到事件）
     let mouseX = null
     let mouseY = null
 
@@ -73,13 +75,19 @@ export default function ParticleBackground() {
       mouseY = e.clientY
     }
 
-    canvas.addEventListener('mousemove', handleMouseMove)
+    if (!prefersReducedMotion) {
+      window.addEventListener('mousemove', handleMouseMove)
+    }
+
+    const drawStatic = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      particles.forEach((p) => p.draw())
+    }
 
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
 
       particles.forEach((particle) => {
-        // 鼠标避让效果
         if (mouseX !== null && mouseY !== null) {
           const dx = particle.x - mouseX
           const dy = particle.y - mouseY
@@ -99,11 +107,15 @@ export default function ParticleBackground() {
       animationFrameId = requestAnimationFrame(animate)
     }
 
-    animate()
+    if (prefersReducedMotion) {
+      drawStatic()
+    } else {
+      animate()
+    }
 
     return () => {
       window.removeEventListener('resize', resizeCanvas)
-      canvas.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('mousemove', handleMouseMove)
       cancelAnimationFrame(animationFrameId)
     }
   }, [])
@@ -111,7 +123,8 @@ export default function ParticleBackground() {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 -z-5 pointer-events-auto"
+      aria-hidden="true"
+      className="fixed inset-0 -z-5 pointer-events-none"
       style={{ opacity: 0.6 }}
     />
   )

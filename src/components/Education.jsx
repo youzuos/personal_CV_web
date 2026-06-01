@@ -45,9 +45,13 @@ export default function Education() {
                     <div className="w-16 h-16 shrink-0 rounded-xl overflow-hidden bg-white flex items-center justify-center shadow-lg shadow-aurora-purple/30 p-2">
                       <img
                         src={edu.school.includes('HKU') || edu.school.includes('香港')
-                          ? '/personal-web/logos/HKU_logo.png'
-                          : '/personal-web/logos/USST_logo.png'}
-                        alt={edu.school}
+                          ? '/logos/HKU_logo.png'
+                          : '/logos/USST_logo.png'}
+                        alt={`${edu.school} logo`}
+                        width="64"
+                        height="64"
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-contain"
                       />
                     </div>
