@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from 'react'
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react'
 import { MotionConfig } from 'framer-motion'
 import AuroraBackground from './components/AuroraBackground'
 import ParticleBackground from './components/ParticleBackground'
@@ -13,8 +13,6 @@ import Skills from './components/Skills'
 import Leadership from './components/Leadership'
 import Footer from './components/Footer'
 import Intro from './components/Intro'
-import ErrorBoundary from './components/ErrorBoundary'
-import SectionSkeleton from './components/SectionSkeleton'
 import { LanguageProvider } from './contexts/LanguageContext'
 
 // Lazy-load heavy below-the-fold sections to shrink the initial bundle
@@ -32,15 +30,15 @@ function App() {
     window.scrollTo(0, 0)
   }, [])
 
-  const handleIntroComplete = () => {
+  const handleIntroComplete = useCallback(() => {
     localStorage.setItem('introSeen', 'true')
     setIntroComplete(true)
-  }
+  }, [])
 
   return (
     <MotionConfig reducedMotion="user">
       <LanguageProvider>
-        <Intro onComplete={handleIntroComplete} />
+        {!introComplete && <Intro onComplete={handleIntroComplete} />}
         {introComplete && (
           <div className="min-h-screen">
             <AuroraBackground />
@@ -48,11 +46,9 @@ function App() {
             <Navbar />
             <main>
               <Hero />
-              <ErrorBoundary>
-                <Suspense fallback={<SectionSkeleton minHeight="540px" label="Loading AI assistant" />}>
-                  <AIAnswer />
-                </Suspense>
-              </ErrorBoundary>
+              <Suspense fallback={null}>
+                <AIAnswer />
+              </Suspense>
               <Experience />
               <Education />
               <Projects />
@@ -60,11 +56,9 @@ function App() {
               <Skills />
               <Leadership />
               <Contact />
-              <ErrorBoundary>
-                <Suspense fallback={<SectionSkeleton minHeight="480px" label="Loading contact form" />}>
-                  <ContactForm />
-                </Suspense>
-              </ErrorBoundary>
+              <Suspense fallback={null}>
+                <ContactForm />
+              </Suspense>
             </main>
             <Footer />
           </div>

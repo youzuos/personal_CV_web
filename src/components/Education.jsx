@@ -33,7 +33,6 @@ export default function Education() {
               viewport={{ once: true, margin: "-50px" }}
               transition={{ delay: index * 0.15, type: "spring", stiffness: 80, damping: 15 }}
               whileHover={{ scale: 1.03, y: -8 }}
-              whileTap={{ scale: 0.98 }}
             >
               <div className="glass-card p-8 h-full gradient-border">
                 {/* Gradient glow */}

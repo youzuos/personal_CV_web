@@ -45,7 +45,6 @@ export default function Experience() {
                 <motion.div
                   className="glass-card p-6 gradient-border"
                   whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
                   <div className="flex items-center gap-3 mb-3">

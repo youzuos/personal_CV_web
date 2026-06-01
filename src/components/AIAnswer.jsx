@@ -45,13 +45,6 @@ const MESSAGE_TYPES = {
   CHAT: 'chat'
 }
 
-// Stable id generator: prefer crypto.randomUUID where available, fall back to
-// a millisecond + random string for older browsers without the secure-context UUID API.
-const newId = () =>
-  (typeof crypto !== 'undefined' && crypto.randomUUID)
-    ? crypto.randomUUID()
-    : `${Date.now()}-${Math.random().toString(36).slice(2)}`
-
 // Recognize obvious greetings / pleasantries so we don't accept "Hi" as a job title.
 // Kept as a small whitelist on purpose — short real titles like "PM" / "HR" / "CTO"
 // must still be accepted.
@@ -140,26 +133,12 @@ export default function AIAnswer() {
     ]
   }
 
-  // Initialize conversation: type out the greeting just like later AI replies
-  // so the very first message has consistent motion with the rest of the chat.
+  // Initialize conversation
   useEffect(() => {
-    if (typingTimerRef.current) {
-      clearTimeout(typingTimerRef.current)
-      typingTimerRef.current = null
-    }
-    const id = newId()
     setMessages([
-      { role: 'assistant', content: '', type: MESSAGE_TYPES.GREETING, id, isComplete: false }
+      { role: 'assistant', content: t.greeting, type: MESSAGE_TYPES.GREETING, isComplete: true }
     ])
     lastMessageCount.current = 1
-    startTypingAnimation(t.greeting, id)
-    return () => {
-      if (typingTimerRef.current) {
-        clearTimeout(typingTimerRef.current)
-        typingTimerRef.current = null
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language])
 
   // Auto-scroll to bottom - only scroll when new messages are added, not during typing
@@ -237,13 +216,13 @@ export default function AIAnswer() {
   }
 
   const addMessage = (role, content, type = MESSAGE_TYPES.CHAT) => {
-    const id = newId()
+    const id = Date.now() + Math.random()
     setMessages(prev => [...prev, { role, content, type, id, isComplete: true }])
     return id
   }
 
   const addStreamingMessage = () => {
-    const id = newId()
+    const id = Date.now() + Math.random()
     setMessages(prev => [...prev, { role: 'assistant', content: '', type: MESSAGE_TYPES.CHAT, id, isComplete: false, isStreaming: true }])
     return id
   }
@@ -429,14 +408,13 @@ export default function AIAnswer() {
     setIsTyping(false)
     setCollectedInfo({ jobTitle: '', jobRequirements: '' })
     setConversationState(MESSAGE_TYPES.GREETING)
-    const id = newId()
     setMessages([
-      { role: 'assistant', content: '', type: MESSAGE_TYPES.GREETING, id, isComplete: false }
+      { role: 'assistant', content: t.greeting, type: MESSAGE_TYPES.GREETING, isComplete: true, id: Date.now() + Math.random() }
     ])
     lastMessageCount.current = 1
     hasUserInteractedRef.current = false
     setInputValue('')
-    startTypingAnimation(t.greeting, id)
+    inputRef.current?.focus()
   }
 
   // Clean up typing timer + abort in-flight requests on unmount

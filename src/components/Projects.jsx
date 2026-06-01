@@ -35,7 +35,6 @@ export default function Projects() {
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ delay: index * 0.1, type: "spring", stiffness: 100, damping: 15 }}
                 whileHover={{ y: -8, scale: 1.02 }}
-                whileTap={{ scale: 0.97 }}
                 className={isTall ? "md:row-span-2" : ""}
               >
                 <div

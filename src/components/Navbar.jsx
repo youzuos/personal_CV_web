@@ -294,7 +294,6 @@ export default function Navbar() {
                         <motion.a
                           href={item.href}
                           onClick={(e) => scrollToSection(e, item.href)}
-                          aria-current={isActive ? 'true' : undefined}
                           className={`block px-4 py-3 rounded-xl text-base font-medium transition-all duration-300 ${
                             isActive
                               ? 'bg-gradient-to-r from-aurora-purple/30 to-aurora-cyan/30 text-white'
@@ -309,22 +308,6 @@ export default function Navbar() {
                     )
                   })}
                 </ul>
-
-                {/* Language toggle inside the drawer for easy thumb access */}
-                <div className="p-4 border-t border-white/10">
-                  <button
-                    onClick={() => {
-                      toggleLanguage()
-                      setIsMobileMenuOpen(false)
-                    }}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-sm font-medium transition-colors"
-                    aria-label={language === 'zh' ? '切换语言' : 'Switch language'}
-                  >
-                    <span className={language === 'en' ? 'text-white' : 'text-slate-400'}>EN</span>
-                    <span className="text-slate-500">/</span>
-                    <span className={language === 'zh' ? 'text-white' : 'text-slate-400'}>中</span>
-                  </button>
-                </div>
               </div>
             </motion.div>
           </>
