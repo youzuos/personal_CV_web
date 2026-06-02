@@ -48,7 +48,7 @@ export default function Experience() {
                   transition={{ type: "spring", stiffness: 300 }}
                 >
                   <div className="flex items-center gap-3 mb-3">
-                    <span className="text-3xl">{job.icon}</span>
+                    <span aria-hidden="true" className="text-3xl">{job.icon}</span>
                     <div>
                       <p className="text-sm text-aurora-cyan font-semibold">{job.period}</p>
                     </div>

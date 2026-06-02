@@ -150,9 +150,10 @@ export default function ContactForm() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="mb-6 p-4 rounded-xl bg-green-500/20 border border-green-500/30 text-green-400 text-center"
+              role="status"
+              className="mb-6 p-4 rounded-xl bg-green-500/20 border border-green-500/30 text-green-300 text-center"
             >
-              ✓ {t.success}
+              <span aria-hidden="true">✓ </span>{t.success}
             </motion.div>
           )}
         </AnimatePresence>
@@ -164,9 +165,10 @@ export default function ContactForm() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="mb-6 p-4 rounded-xl bg-red-500/20 border border-red-500/30 text-red-400 text-center"
+              role="alert"
+              className="mb-6 p-4 rounded-xl bg-red-500/20 border border-red-500/30 text-red-300 text-center"
             >
-              ✗ {t.error}
+              <span aria-hidden="true">✗ </span>{t.error}
             </motion.div>
           )}
         </AnimatePresence>

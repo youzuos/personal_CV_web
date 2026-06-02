@@ -43,6 +43,7 @@ export default function Contact() {
               whileInView={{ scale: 1, rotate: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2, type: "spring", stiffness: 150 }}
+              aria-hidden="true"
               className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-aurora-purple to-aurora-pink flex items-center justify-center text-2xl shadow-lg shadow-aurora-purple/30 group-hover:shadow-aurora-purple/50 transition-shadow"
             >
               📧
@@ -69,6 +70,7 @@ export default function Contact() {
               whileInView={{ scale: 1, rotate: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.3, type: "spring", stiffness: 150 }}
+              aria-hidden="true"
               className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-aurora-cyan to-aurora-blue flex items-center justify-center text-2xl shadow-lg shadow-aurora-cyan/30 group-hover:shadow-aurora-cyan/50 transition-shadow"
             >
               📱
@@ -91,6 +93,7 @@ export default function Contact() {
               whileInView={{ scale: 1, rotate: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2, type: "spring", stiffness: 150 }}
+              aria-hidden="true"
               className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-aurora-orange to-aurora-yellow flex items-center justify-center text-2xl shadow-lg shadow-aurora-orange/30 group-hover:shadow-aurora-orange/50 transition-shadow"
             >
               📍

@@ -41,6 +41,7 @@ export default function Leadership() {
                     whileInView={{ scale: 1, rotate: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: index * 0.1 + 0.2, type: "spring", stiffness: 150 }}
+                    aria-hidden="true"
                     className="w-14 h-14 rounded-2xl bg-gradient-to-br from-aurora-orange to-aurora-yellow flex items-center justify-center text-2xl shrink-0 shadow-lg shadow-aurora-orange/30"
                   >
                     {item.icon}

@@ -508,6 +508,7 @@ export default function AIAnswer() {
                           animate={{ rotate: 360 }}
                           transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
                           className="text-sm"
+                          aria-hidden="true"
                         >
                           🤖
                         </motion.span>
@@ -621,12 +622,12 @@ export default function AIAnswer() {
               <div className="mt-3 flex flex-wrap items-center gap-2 justify-between">
                 <div className="flex flex-wrap gap-2">
                   {collectedInfo.jobTitle && (
-                    <div className="px-3 py-1 rounded-full bg-aurora-purple/20 text-aurora-purple text-xs">
+                    <div className="px-3 py-1 rounded-full bg-aurora-purple/20 text-purple-200 text-xs">
                       {language === 'zh' ? '招聘职位：' : 'Hiring for: '}{collectedInfo.jobTitle}
                     </div>
                   )}
                   {collectedInfo.jobRequirements && (
-                    <div className="px-3 py-1 rounded-full bg-aurora-cyan/20 text-aurora-cyan text-xs max-w-[300px]">
+                    <div className="px-3 py-1 rounded-full bg-aurora-cyan/20 text-cyan-200 text-xs max-w-[300px]">
                       {language === 'zh' ? '职位要求：' : 'Requirements: '}{collectedInfo.jobRequirements}
                     </div>
                   )}
@@ -637,7 +638,7 @@ export default function AIAnswer() {
                   aria-label={t.resetAriaLabel}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="px-3 py-1 rounded-full bg-white/5 hover:bg-aurora-pink/20 border border-white/10 hover:border-aurora-pink/40 text-slate-400 hover:text-aurora-pink text-xs transition-colors flex items-center gap-1.5"
+                  className="min-h-[44px] px-4 py-2 rounded-full bg-white/5 hover:bg-aurora-pink/20 border border-white/10 hover:border-aurora-pink/40 text-slate-300 hover:text-aurora-pink text-xs transition-colors flex items-center gap-1.5"
                 >
                   <span aria-hidden="true">↻</span>
                   {t.reset}

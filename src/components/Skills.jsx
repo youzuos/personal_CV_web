@@ -42,6 +42,7 @@ export default function Skills() {
                 whileInView={{ rotate: 0, scale: 1 }}
                 transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
                 className="text-2xl"
+                aria-hidden="true"
               >🌍</motion.span> {t.languages}
             </h3>
             <div className="space-y-3">
@@ -75,6 +76,7 @@ export default function Skills() {
                 whileInView={{ rotate: 0, scale: 1 }}
                 transition={{ type: "spring", stiffness: 200, delay: 0.3 }}
                 className="text-2xl"
+                aria-hidden="true"
               >💻</motion.span> {t.programming}
             </h3>
             <div className="flex flex-wrap gap-2">
@@ -108,6 +110,7 @@ export default function Skills() {
                 whileInView={{ rotate: 0, scale: 1 }}
                 transition={{ type: "spring", stiffness: 200, delay: 0.4 }}
                 className="text-2xl"
+                aria-hidden="true"
               >📦</motion.span> {t.frameworks}
             </h3>
             <div className="flex flex-wrap gap-2">
@@ -141,6 +144,7 @@ export default function Skills() {
                 whileInView={{ rotate: 0, scale: 1 }}
                 transition={{ type: "spring", stiffness: 200, delay: 0.5 }}
                 className="text-2xl"
+                aria-hidden="true"
               >🛠️</motion.span> {t.tools}
             </h3>
             <div className="flex flex-wrap gap-2">

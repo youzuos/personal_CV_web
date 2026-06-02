@@ -40,6 +40,7 @@ export default function Awards() {
                   whileInView={{ scale: 1 }}
                   transition={{ delay: Math.min(index * 0.03, 0.5) + 0.2, type: "spring", stiffness: 200 }}
                   className="text-aurora-yellow text-xl"
+                  aria-hidden="true"
                 >🏅</motion.span>
                 <span className="text-slate-300 text-sm">{award}</span>
               </motion.div>

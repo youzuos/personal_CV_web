@@ -47,7 +47,7 @@ export default function Projects() {
 
                   <div className="relative">
                     <div className="flex justify-between items-start mb-4">
-                      <span className="text-4xl">{project.icon}</span>
+                      <span aria-hidden="true" className="text-4xl">{project.icon}</span>
                       <span className="text-xs text-aurora-cyan font-mono">{project.period}</span>
                     </div>
 
