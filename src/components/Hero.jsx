@@ -109,12 +109,15 @@ export default function Hero() {
               href={data.contact.github}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-8 py-3 rounded-full text-sm font-semibold text-slate-200 border border-white/15 hover:border-white/30 hover:text-white transition-colors"
+              className="btn-gradient"
+              style={{
+                background: 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)',
+                boxShadow: '0 4px 15px rgba(59, 130, 246, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15)',
+              }}
               whileHover={{ y: -2 }}
               whileTap={{ scale: 0.98 }}
             >
-              GitHub
-              <span aria-hidden>↗</span>
+              <span>GitHub ↗</span>
             </motion.a>
           )}
         </motion.div>
