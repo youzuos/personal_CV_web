@@ -51,7 +51,9 @@ export default function ContactForm() {
     e.preventDefault()
 
     if (!isEmailJsConfigured) {
-      alert(t.configNote)
+      if (import.meta.env.DEV) console.warn(t.configNote)
+      setStatus('error')
+      setTimeout(() => setStatus('idle'), 5000)
       return
     }
 
@@ -93,8 +95,8 @@ export default function ContactForm() {
   return (
     <section id="contact-form" className="pb-24 px-6">
       <div className="max-w-2xl mx-auto">
-      {/* Configuration Notice */}
-      {!isEmailJsConfigured && (
+      {/* Configuration Notice — dev-only, so site visitors never see it */}
+      {!isEmailJsConfigured && import.meta.env.DEV && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
