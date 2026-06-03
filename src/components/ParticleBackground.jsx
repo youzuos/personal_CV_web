@@ -7,9 +7,12 @@ export default function ParticleBackground() {
   useEffect(() => {
     const canvas = canvasRef.current
     const ctx = canvas.getContext('2d')
-    let animationFrameId
+    let animationFrameId = null
 
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    // Touch devices have no real cursor — skip the mousemove handler entirely
+    // to avoid the cost of binding + per-event work that produces no visible effect.
+    const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches
 
     const resizeCanvas = () => {
       canvas.width = window.innerWidth
@@ -75,8 +78,10 @@ export default function ParticleBackground() {
       mouseY = e.clientY
     }
 
-    if (!prefersReducedMotion) {
-      window.addEventListener('mousemove', handleMouseMove)
+    if (!prefersReducedMotion && !isCoarsePointer) {
+      // passive: we never call preventDefault, so let the browser skip the
+      // preventDefault-check and scroll uninterrupted.
+      window.addEventListener('mousemove', handleMouseMove, { passive: true })
     }
 
     const drawStatic = () => {
@@ -107,16 +112,34 @@ export default function ParticleBackground() {
       animationFrameId = requestAnimationFrame(animate)
     }
 
-    if (prefersReducedMotion) {
-      drawStatic()
-    } else {
-      animate()
+    const start = () => {
+      if (animationFrameId !== null) return
+      if (prefersReducedMotion) drawStatic()
+      else animate()
     }
+
+    const stop = () => {
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId)
+        animationFrameId = null
+      }
+    }
+
+    // Pause the RAF loop when the tab is hidden — background tabs and locked
+    // phones were spending battery on invisible particles.
+    const handleVisibility = () => {
+      if (document.hidden) stop()
+      else start()
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
+
+    start()
 
     return () => {
       window.removeEventListener('resize', resizeCanvas)
       window.removeEventListener('mousemove', handleMouseMove)
-      cancelAnimationFrame(animationFrameId)
+      document.removeEventListener('visibilitychange', handleVisibility)
+      stop()
     }
   }, [])
 

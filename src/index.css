@@ -242,6 +242,22 @@
   .glowing-border {
     animation: borderGlow 6s ease-in-out infinite;
   }
+
+  /* Slow drifting aurora blobs used by AuroraBackground.
+     translate3d + scale only — composited, no layout, no paint cost.
+     Three desynced keyframes so the blobs never line up the same way twice. */
+  @keyframes auroraDrift1 {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+    50%      { transform: translate3d(8%, -6%, 0) scale(1.1); }
+  }
+  @keyframes auroraDrift2 {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+    50%      { transform: translate3d(-7%, 8%, 0) scale(1.15); }
+  }
+  @keyframes auroraDrift3 {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(0.95); }
+    50%      { transform: translate3d(6%, 10%, 0) scale(1.1); }
+  }
 }
 
 /* Scrollbar styling */
