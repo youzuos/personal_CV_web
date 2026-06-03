@@ -1,5 +1,5 @@
 // src/components/Navbar.jsx
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLanguage } from '../contexts/LanguageContext'
 
@@ -32,6 +32,10 @@ export default function Navbar() {
   const [activeSection, setActiveSection] = useState('')
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const { language, toggleLanguage } = useLanguage()
+  const triggerRef = useRef(null)
+  const closeRef = useRef(null)
+  const panelRef = useRef(null)
+  const wasOpenRef = useRef(false)
 
   const navItems = language === 'zh' ? navItemsZh : navItemsEn
 
@@ -136,6 +140,43 @@ export default function Navbar() {
     return () => document.removeEventListener('keydown', handleEsc)
   }, [isMobileMenuOpen])
 
+  // Focus management: on open, move focus into the panel; on close, restore to trigger.
+  // Without this, screen-reader and keyboard users would be left tab-cycling behind the drawer.
+  // The wasOpenRef guard prevents the trigger from grabbing focus on initial mount.
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      wasOpenRef.current = true
+      const t = setTimeout(() => closeRef.current?.focus(), 100)
+      return () => clearTimeout(t)
+    }
+    if (wasOpenRef.current) {
+      triggerRef.current?.focus()
+    }
+  }, [isMobileMenuOpen])
+
+  // Trap Tab inside the open drawer so focus can't escape into the page behind it.
+  useEffect(() => {
+    if (!isMobileMenuOpen) return
+    const handleTab = (e) => {
+      if (e.key !== 'Tab' || !panelRef.current) return
+      const focusable = panelRef.current.querySelectorAll(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      )
+      if (focusable.length === 0) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
+    document.addEventListener('keydown', handleTab)
+    return () => document.removeEventListener('keydown', handleTab)
+  }, [isMobileMenuOpen])
+
   return (
     <motion.nav
       initial={{ y: -100 }}
@@ -178,7 +219,7 @@ export default function Navbar() {
                   className={`relative px-3 sm:px-4 py-2 text-sm font-medium transition-all duration-300 rounded-full ${
                     isActive
                       ? 'text-white'
-                      : 'text-slate-400 hover:text-white'
+                      : 'text-slate-300 hover:text-white'
                   }`}
                   whileHover={{ y: -1 }}
                   whileTap={{ scale: 0.98 }}
@@ -211,15 +252,16 @@ export default function Navbar() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <span className={language === 'en' ? 'text-white' : 'text-slate-400'}>EN</span>
-            <span className="text-slate-500">/</span>
-            <span className={language === 'zh' ? 'text-white' : 'text-slate-400'}>中</span>
+            <span className={language === 'en' ? 'text-white' : 'text-slate-300'}>EN</span>
+            <span className="text-slate-400">/</span>
+            <span className={language === 'zh' ? 'text-white' : 'text-slate-300'}>中</span>
           </motion.button>
 
           {/* Mobile Menu Button */}
           <motion.button
+            ref={triggerRef}
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="xl:hidden min-w-[44px] min-h-[44px] p-2 rounded-full glass-card relative z-20 flex items-center justify-center"
+            className="xl:hidden min-w-[44px] min-h-[44px] p-2 rounded-full glass-card relative z-20 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-aurora-purple/60"
             whileTap={{ scale: 0.95 }}
             aria-label={language === 'zh' ? '切换菜单' : 'Toggle menu'}
             aria-expanded={isMobileMenuOpen}
@@ -228,6 +270,7 @@ export default function Navbar() {
               {!isMobileMenuOpen ? (
                 <motion.svg
                   key="menu"
+                  aria-hidden="true"
                   initial={{ rotate: -90, opacity: 0 }}
                   animate={{ rotate: 0, opacity: 1 }}
                   exit={{ rotate: 90, opacity: 0 }}
@@ -242,6 +285,7 @@ export default function Navbar() {
               ) : (
                 <motion.svg
                   key="close"
+                  aria-hidden="true"
                   initial={{ rotate: 90, opacity: 0 }}
                   animate={{ rotate: 0, opacity: 1 }}
                   exit={{ rotate: -90, opacity: 0 }}
@@ -275,6 +319,10 @@ export default function Navbar() {
 
             {/* Menu Panel - Now from Left */}
             <motion.div
+              ref={panelRef}
+              role="dialog"
+              aria-modal="true"
+              aria-label={language === 'zh' ? '主导航' : 'Main navigation'}
               initial={{ opacity: 0, x: '-100%' }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: '-100%' }}
@@ -286,9 +334,10 @@ export default function Navbar() {
                 <div className="flex items-center justify-between p-6 border-b border-white/10">
                   <span className="text-lg font-bold gradient-text">Menu</span>
                   <button
+                    ref={closeRef}
                     onClick={() => setIsMobileMenuOpen(false)}
                     aria-label={language === 'zh' ? '关闭菜单' : 'Close menu'}
-                    className="min-w-[44px] min-h-[44px] p-2 rounded-full hover:bg-white/10 transition-colors flex items-center justify-center"
+                    className="min-w-[44px] min-h-[44px] p-2 rounded-full hover:bg-white/10 transition-colors flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-aurora-purple/60"
                   >
                     <svg aria-hidden="true" className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

@@ -52,7 +52,7 @@ export default function Leadership() {
                       <h3 className="text-lg font-bold text-white">{item.role}</h3>
                       <span className="text-sm text-aurora-orange font-mono">{item.period}</span>
                     </div>
-                    <p className="text-slate-400 mb-3">{item.organization}</p>
+                    <p className="text-slate-300 mb-3">{item.organization}</p>
 
                     {item.highlights && (
                       <ul className="space-y-1">
@@ -65,7 +65,7 @@ export default function Leadership() {
                             transition={{ delay: index * 0.1 + 0.3 + i * 0.1 }}
                             className="text-sm text-slate-300 flex items-start gap-2"
                           >
-                            <span className="text-aurora-yellow">▹</span>
+                            <span aria-hidden="true" className="text-aurora-yellow">▹</span>
                             {highlight}
                           </motion.li>
                         ))}

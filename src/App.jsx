@@ -13,6 +13,7 @@ import Skills from './components/Skills'
 import Leadership from './components/Leadership'
 import Footer from './components/Footer'
 import Intro from './components/Intro'
+import SectionSkeleton from './components/SectionSkeleton'
 import { LanguageProvider } from './contexts/LanguageContext'
 
 // Lazy-load heavy below-the-fold sections to shrink the initial bundle
@@ -21,8 +22,8 @@ const ContactForm = lazy(() => import('./components/ContactForm'))
 
 function App() {
   const [introComplete, setIntroComplete] = useState(() => {
-    // Check if intro was already shown
-    return localStorage.getItem('introSeen') === 'true'
+    // Per-session: same tab won't replay, but a fresh tab/window shows it again
+    return sessionStorage.getItem('introSeen') === 'true'
   })
 
   // Scroll to top on page load/refresh
@@ -31,7 +32,7 @@ function App() {
   }, [])
 
   const handleIntroComplete = useCallback(() => {
-    localStorage.setItem('introSeen', 'true')
+    sessionStorage.setItem('introSeen', 'true')
     setIntroComplete(true)
   }, [])
 
@@ -52,7 +53,7 @@ function App() {
             <Navbar />
             <main id="main">
               <Hero />
-              <Suspense fallback={null}>
+              <Suspense fallback={<SectionSkeleton minHeight="650px" label="Loading AI assistant" />}>
                 <AIAnswer />
               </Suspense>
               <Experience />
@@ -62,7 +63,7 @@ function App() {
               <Skills />
               <Leadership />
               <Contact />
-              <Suspense fallback={null}>
+              <Suspense fallback={<SectionSkeleton minHeight="540px" label="Loading contact form" />}>
                 <ContactForm />
               </Suspense>
             </main>

@@ -14,12 +14,12 @@ export default function Footer() {
           </div>
 
           {/* Copyright */}
-          <p className="text-slate-400 text-center">
+          <p className="text-slate-300 text-center">
             © {year} {resumeData.name}. All rights reserved.
           </p>
 
           {/* Tech stack */}
-          <div className="flex items-center gap-4 text-sm text-slate-400">
+          <div className="flex items-center gap-4 text-sm text-slate-300">
             <span>React</span>
             <span className="text-aurora-purple">•</span>
             <span>Vite</span>

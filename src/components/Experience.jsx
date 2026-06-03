@@ -55,12 +55,12 @@ export default function Experience() {
                   </div>
 
                   <h3 className="text-xl font-bold text-white mb-1">{job.position}</h3>
-                  <p className="text-slate-400 mb-4">{job.company} · {job.location}</p>
+                  <p className="text-slate-300 mb-4">{job.company} · {job.location}</p>
 
                   <ul className="space-y-2">
                     {job.achievements.map((achievement, i) => (
                       <li key={i} className="text-sm text-slate-300 flex items-start gap-2">
-                        <span className="text-aurora-pink mt-0.5">▹</span>
+                        <span aria-hidden="true" className="text-aurora-pink mt-0.5">▹</span>
                         {achievement}
                       </li>
                     ))}

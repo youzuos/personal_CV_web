@@ -158,7 +158,7 @@ export default function Intro({ onComplete }) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: phase === 'fadeout' ? 0 : 0.7 }}
                 transition={{ delay: 0.5, duration: 0.5 }}
-                className="text-slate-400 text-sm md:text-base mt-4 tracking-widest uppercase"
+                className="text-slate-300 text-sm md:text-base mt-4 tracking-widest uppercase"
               >
                 {language === 'zh' ? '正在加载精彩内容...' : 'Loading amazing content...'}
               </motion.p>

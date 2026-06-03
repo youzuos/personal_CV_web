@@ -57,7 +57,7 @@ export default function Education() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <h3 className="font-bold text-white text-lg leading-tight">{edu.school}</h3>
-                      <p className="text-sm text-slate-400">{edu.location}</p>
+                      <p className="text-sm text-slate-300">{edu.location}</p>
                     </div>
                   </div>
 
@@ -66,7 +66,7 @@ export default function Education() {
 
                   {edu.gpa && (
                     <div className="pt-4 border-t border-white/10">
-                      <p className="text-sm text-slate-400">{t.gpa}: <span className="text-transparent bg-clip-text bg-gradient-to-r from-aurora-pink to-aurora-purple font-semibold">{edu.gpa}</span></p>
+                      <p className="text-sm text-slate-300">{t.gpa}: <span className="text-transparent bg-clip-text bg-gradient-to-r from-aurora-pink to-aurora-purple font-semibold">{edu.gpa}</span></p>
                     </div>
                   )}
                 </div>

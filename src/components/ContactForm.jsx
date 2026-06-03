@@ -151,9 +151,21 @@ export default function ContactForm() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               role="status"
-              className="mb-6 p-4 rounded-xl bg-green-500/20 border border-green-500/30 text-green-300 text-center"
+              className="mb-6 p-4 rounded-xl bg-green-500/20 border border-green-500/30 text-green-300 flex items-center justify-center gap-2"
             >
-              <span aria-hidden="true">✓ </span>{t.success}
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-5 h-5 shrink-0"
+              >
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              <span>{t.success}</span>
             </motion.div>
           )}
         </AnimatePresence>
@@ -166,9 +178,22 @@ export default function ContactForm() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               role="alert"
-              className="mb-6 p-4 rounded-xl bg-red-500/20 border border-red-500/30 text-red-300 text-center"
+              className="mb-6 p-4 rounded-xl bg-red-500/20 border border-red-500/30 text-red-300 flex items-center justify-center gap-2"
             >
-              <span aria-hidden="true">✗ </span>{t.error}
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-5 h-5 shrink-0"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+              <span>{t.error}</span>
             </motion.div>
           )}
         </AnimatePresence>
@@ -176,7 +201,7 @@ export default function ContactForm() {
         <div className="space-y-4">
           {/* Name */}
           <div>
-            <label htmlFor={fieldId('name')} className="block text-sm text-slate-400 mb-2">{t.nameLabel}</label>
+            <label htmlFor={fieldId('name')} className="block text-sm text-slate-300 mb-2">{t.nameLabel}</label>
             <input
               id={fieldId('name')}
               type="text"
@@ -186,13 +211,13 @@ export default function ContactForm() {
               required
               autoComplete="name"
               placeholder={t.placeholders.name}
-              className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-aurora-purple/50 transition-colors"
+              className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:outline-none focus:border-aurora-purple/50 focus-visible:ring-2 focus-visible:ring-aurora-purple/60 transition-colors"
             />
           </div>
 
           {/* Email */}
           <div>
-            <label htmlFor={fieldId('email')} className="block text-sm text-slate-400 mb-2">{t.emailLabel}</label>
+            <label htmlFor={fieldId('email')} className="block text-sm text-slate-300 mb-2">{t.emailLabel}</label>
             <input
               id={fieldId('email')}
               type="email"
@@ -203,13 +228,13 @@ export default function ContactForm() {
               autoComplete="email"
               inputMode="email"
               placeholder={t.placeholders.email}
-              className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-aurora-purple/50 transition-colors"
+              className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:outline-none focus:border-aurora-purple/50 focus-visible:ring-2 focus-visible:ring-aurora-purple/60 transition-colors"
             />
           </div>
 
           {/* Subject */}
           <div>
-            <label htmlFor={fieldId('subject')} className="block text-sm text-slate-400 mb-2">{t.subjectLabel}</label>
+            <label htmlFor={fieldId('subject')} className="block text-sm text-slate-300 mb-2">{t.subjectLabel}</label>
             <input
               id={fieldId('subject')}
               type="text"
@@ -219,13 +244,13 @@ export default function ContactForm() {
               required
               autoComplete="off"
               placeholder={t.placeholders.subject}
-              className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-aurora-purple/50 transition-colors"
+              className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:outline-none focus:border-aurora-purple/50 focus-visible:ring-2 focus-visible:ring-aurora-purple/60 transition-colors"
             />
           </div>
 
           {/* Message */}
           <div>
-            <label htmlFor={fieldId('message')} className="block text-sm text-slate-400 mb-2">{t.messageLabel}</label>
+            <label htmlFor={fieldId('message')} className="block text-sm text-slate-300 mb-2">{t.messageLabel}</label>
             <textarea
               id={fieldId('message')}
               name="message"
@@ -235,7 +260,7 @@ export default function ContactForm() {
               autoComplete="off"
               rows={5}
               placeholder={t.placeholders.message}
-              className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-aurora-purple/50 transition-colors resize-none"
+              className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:outline-none focus:border-aurora-purple/50 focus-visible:ring-2 focus-visible:ring-aurora-purple/60 transition-colors resize-none"
             />
           </div>
 
@@ -243,9 +268,9 @@ export default function ContactForm() {
           <motion.button
             type="submit"
             disabled={status === 'loading'}
-            className="w-full py-4 rounded-xl bg-gradient-to-r from-aurora-purple to-aurora-pink text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            className="w-full py-4 rounded-xl bg-gradient-to-r from-aurora-purple to-aurora-pink text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-aurora-purple/70 focus-visible:ring-offset-2 focus-visible:ring-offset-aurora-bg"
+            whileHover={status === 'loading' ? {} : { scale: 1.02 }}
+            whileTap={status === 'loading' ? {} : { scale: 0.98 }}
           >
             {status === 'loading' ? t.sending : t.sendButton}
           </motion.button>

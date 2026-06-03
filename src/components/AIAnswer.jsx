@@ -376,8 +376,10 @@ export default function AIAnswer() {
     }
   }
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+  const handleKeyDown = (e) => {
+    // Guard against IME composition: pressing Enter to confirm a Chinese/Japanese
+    // candidate would otherwise submit the half-typed message.
+    if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
       e.preventDefault()
       e.stopPropagation()
       handleSendMessage()
@@ -440,20 +442,18 @@ export default function AIAnswer() {
       <motion.div
         animate={{
           scale: [1, 1.2, 1],
-          rotate: [0, 90, 0],
-          borderRadius: ['30%', '50%', '30%']
+          rotate: [0, 90, 0]
         }}
         transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute top-20 right-20 w-96 h-96 bg-gradient-to-br from-aurora-purple/20 to-aurora-pink/20 blur-3xl pointer-events-none"
+        className="absolute top-20 right-20 w-96 h-96 rounded-full bg-gradient-to-br from-aurora-purple/20 to-aurora-pink/20 blur-3xl pointer-events-none"
       />
       <motion.div
         animate={{
           scale: [1.2, 1, 1.2],
-          rotate: [0, -90, 0],
-          borderRadius: ['50%', '30%', '50%']
+          rotate: [0, -90, 0]
         }}
         transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute bottom-20 left-20 w-80 h-80 bg-gradient-to-br from-aurora-cyan/20 to-aurora-blue/20 blur-3xl pointer-events-none"
+        className="absolute bottom-20 left-20 w-80 h-80 rounded-full bg-gradient-to-br from-aurora-cyan/20 to-aurora-blue/20 blur-3xl pointer-events-none"
       />
 
       <div className="max-w-4xl mx-auto relative z-10">
@@ -467,7 +467,7 @@ export default function AIAnswer() {
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
             <span className="gradient-text">{t.title}</span>
           </h2>
-          <p className="text-slate-400">{t.subtitle}</p>
+          <p className="text-slate-300">{t.subtitle}</p>
         </motion.div>
 
         {/* Chat Container - Responsive height with flex column layout */}
@@ -512,7 +512,7 @@ export default function AIAnswer() {
                         >
                           🤖
                         </motion.span>
-                        <span className="text-xs text-slate-400">AI Assistant</span>
+                        <span className="text-xs text-slate-300">AI Assistant</span>
                       </div>
                     )}
                     {msg.role === 'assistant' ? (
@@ -530,7 +530,7 @@ export default function AIAnswer() {
                     {/* Thinking indicator */}
                     {isLoading && msg.role === 'assistant' && msg.isStreaming && !msg.content && (
                       <div className="flex items-center gap-2 mt-2">
-                        <span className="text-xs text-slate-400">{t.thinking}</span>
+                        <span className="text-xs text-slate-300">{t.thinking}</span>
                         <div className="flex gap-1">
                           <motion.span
                             animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1, 0.8] }}
@@ -573,7 +573,7 @@ export default function AIAnswer() {
               exit={{ opacity: 0, height: 0 }}
               className="px-6 py-2 border-t border-white/5"
             >
-              <p className="text-xs text-slate-400 mb-2">
+              <p className="text-xs text-slate-300 mb-2">
                 {language === 'zh' ? '示例问题：' : 'Example questions:'}
               </p>
               <div className="flex flex-wrap gap-2">
@@ -581,7 +581,7 @@ export default function AIAnswer() {
                   <button
                     key={idx}
                     onClick={() => handleExampleClick(question)}
-                    className="px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 text-xs transition-colors hover:text-slate-300"
+                    className="min-h-[44px] px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-aurora-purple/60"
                   >
                     {question}
                   </button>
@@ -600,16 +600,16 @@ export default function AIAnswer() {
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                onKeyPress={handleKeyPress}
+                onKeyDown={handleKeyDown}
                 placeholder={t.placeholder}
                 disabled={isLoading || isTyping}
                 autoComplete="off"
-                className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-aurora-purple/50 transition-colors disabled:opacity-50"
+                className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:outline-none focus:border-aurora-purple/50 focus-visible:ring-2 focus-visible:ring-aurora-purple/60 transition-colors disabled:opacity-50"
               />
               <motion.button
                 type="submit"
                 disabled={isLoading || isTyping || !inputValue.trim()}
-                className="px-6 py-3 rounded-xl bg-gradient-to-r from-aurora-purple to-aurora-pink text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-3 rounded-xl bg-gradient-to-r from-aurora-purple to-aurora-pink text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-aurora-purple/70 focus-visible:ring-offset-2 focus-visible:ring-offset-aurora-bg"
                 whileHover={{ scale: (isLoading || isTyping || !inputValue.trim()) ? 1 : 1.05 }}
                 whileTap={{ scale: (isLoading || isTyping || !inputValue.trim()) ? 1 : 0.95 }}
               >
@@ -638,7 +638,7 @@ export default function AIAnswer() {
                   aria-label={t.resetAriaLabel}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="min-h-[44px] px-4 py-2 rounded-full bg-white/5 hover:bg-aurora-pink/20 border border-white/10 hover:border-aurora-pink/40 text-slate-300 hover:text-aurora-pink text-xs transition-colors flex items-center gap-1.5"
+                  className="min-h-[44px] px-4 py-2 rounded-full bg-white/5 hover:bg-aurora-pink/20 border border-white/10 hover:border-aurora-pink/40 text-slate-300 hover:text-aurora-pink text-xs transition-colors flex items-center gap-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-aurora-pink/60"
                 >
                   <span aria-hidden="true">↻</span>
                   {t.reset}
