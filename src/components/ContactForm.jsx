@@ -211,7 +211,7 @@ export default function ContactForm() {
               required
               autoComplete="name"
               placeholder={t.placeholders.name}
-              className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:outline-none focus:border-aurora-purple/50 focus-visible:ring-2 focus-visible:ring-aurora-purple/60 transition-colors"
+              className="w-full px-4 py-3 text-base rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:outline-none focus:border-aurora-purple/50 focus-visible:ring-2 focus-visible:ring-aurora-purple/60 transition-colors"
             />
           </div>
 
@@ -228,7 +228,7 @@ export default function ContactForm() {
               autoComplete="email"
               inputMode="email"
               placeholder={t.placeholders.email}
-              className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:outline-none focus:border-aurora-purple/50 focus-visible:ring-2 focus-visible:ring-aurora-purple/60 transition-colors"
+              className="w-full px-4 py-3 text-base rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:outline-none focus:border-aurora-purple/50 focus-visible:ring-2 focus-visible:ring-aurora-purple/60 transition-colors"
             />
           </div>
 
@@ -244,7 +244,7 @@ export default function ContactForm() {
               required
               autoComplete="off"
               placeholder={t.placeholders.subject}
-              className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:outline-none focus:border-aurora-purple/50 focus-visible:ring-2 focus-visible:ring-aurora-purple/60 transition-colors"
+              className="w-full px-4 py-3 text-base rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:outline-none focus:border-aurora-purple/50 focus-visible:ring-2 focus-visible:ring-aurora-purple/60 transition-colors"
             />
           </div>
 
@@ -260,7 +260,7 @@ export default function ContactForm() {
               autoComplete="off"
               rows={5}
               placeholder={t.placeholders.message}
-              className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:outline-none focus:border-aurora-purple/50 focus-visible:ring-2 focus-visible:ring-aurora-purple/60 transition-colors resize-none"
+              className="w-full px-4 py-3 text-base rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:outline-none focus:border-aurora-purple/50 focus-visible:ring-2 focus-visible:ring-aurora-purple/60 transition-colors resize-none"
             />
           </div>
 

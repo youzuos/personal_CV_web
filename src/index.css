@@ -7,6 +7,11 @@
     scroll-behavior: smooth;
     /* Offset for collapsed fixed navbar */
     scroll-padding-top: 80px;
+    /* iOS Safari paints a translucent gray rectangle on tap by default — it
+       conflicts with the glass aesthetic and overlaps our framer-motion
+       whileTap scale feedback. Disable globally; tap feedback comes from
+       motion + focus-visible rings instead. */
+    -webkit-tap-highlight-color: transparent;
   }
 
   body {

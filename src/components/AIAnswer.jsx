@@ -604,7 +604,7 @@ export default function AIAnswer() {
                 placeholder={t.placeholder}
                 disabled={isLoading || isTyping}
                 autoComplete="off"
-                className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:outline-none focus:border-aurora-purple/50 focus-visible:ring-2 focus-visible:ring-aurora-purple/60 transition-colors disabled:opacity-50"
+                className="flex-1 px-4 py-3 text-base rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:outline-none focus:border-aurora-purple/50 focus-visible:ring-2 focus-visible:ring-aurora-purple/60 transition-colors disabled:opacity-50"
               />
               <motion.button
                 type="submit"

@@ -41,7 +41,7 @@ function App() {
       <LanguageProvider>
         {!introComplete && <Intro onComplete={handleIntroComplete} />}
         {introComplete && (
-          <div className="min-h-screen">
+          <div className="min-h-screen min-h-dvh">
             <a
               href="#main"
               className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-full focus:bg-aurora-purple focus:text-white focus:shadow-lg"

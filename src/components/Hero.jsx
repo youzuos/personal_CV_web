@@ -28,7 +28,7 @@ export default function Hero() {
   }
 
   return (
-    <section className="min-h-screen flex items-center justify-center relative px-6">
+    <section className="min-h-screen min-h-dvh flex items-center justify-center relative px-6">
       <motion.div
         variants={container}
         initial="hidden"
