@@ -37,3 +37,10 @@ skills-lock.json
 # Local-only resume source files (drop a /public/resume.pdf instead for the download link)
 /*.doc
 /*.docx
+
+# Claude Code's auto-generated project context (locally generated; not source)
+CLAUDE.md
+
+# Local screenshots from manual UI verification (not project assets — keep PNGs in /public/)
+/hero-*.png
+/bg-*.png
