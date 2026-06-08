@@ -15,9 +15,9 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['Outfit', 'system-ui', 'sans-serif'],
-        display: ['Space Grotesk', 'sans-serif'],
-        mono: ['JetBrains Mono', 'monospace'],
+        sans: ['ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+        display: ['ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+        mono: ['ui-monospace', 'SFMono-Regular', 'Consolas', 'Liberation Mono', 'monospace'],
       },
       animation: {
         'aurora-float': 'auroraFloat 20s ease-in-out infinite',

@@ -22,7 +22,6 @@ const ContactForm = lazy(() => import('./components/ContactForm'))
 
 function App() {
   const [introComplete, setIntroComplete] = useState(() => {
-    // Per-session: same tab won't replay, but a fresh tab/window shows it again
     return sessionStorage.getItem('introSeen') === 'true'
   })
 

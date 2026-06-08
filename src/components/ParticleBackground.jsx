@@ -10,8 +10,8 @@ export default function ParticleBackground() {
     let animationFrameId = null
 
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    // Touch devices have no real cursor — skip the mousemove handler entirely
-    // to avoid the cost of binding + per-event work that produces no visible effect.
+    // Touch devices have no real cursor, so keep particles static there. This
+    // avoids a continuous canvas RAF loop during first paint on mobile.
     const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches
 
     const resizeCanvas = () => {
@@ -114,7 +114,7 @@ export default function ParticleBackground() {
 
     const start = () => {
       if (animationFrameId !== null) return
-      if (prefersReducedMotion) drawStatic()
+      if (prefersReducedMotion || isCoarsePointer) drawStatic()
       else animate()
     }
 

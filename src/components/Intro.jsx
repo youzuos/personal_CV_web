@@ -1,231 +1,81 @@
-// src/components/Intro.jsx
 import { motion, AnimatePresence } from 'framer-motion'
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useLanguage } from '../contexts/LanguageContext'
 
-const greetingsEn = ['Hello', 'Welcome', 'Hi there', 'Let\'s connect']
-const greetingsZh = ['你好', '欢迎', '很高兴见到你', '让我们连接']
+const greetings = {
+  en: ['Hello', 'Welcome', 'Hi there'],
+  zh: ['你好', '欢迎', '很高兴见到你'],
+}
 
 export default function Intro({ onComplete }) {
   const { language } = useLanguage()
-  const [phase, setPhase] = useState('hello') // 'hello' -> 'fadeout' -> 'complete'
-  const [greetingIndex, setGreetingIndex] = useState(0)
-
-  const greetings = language === 'zh' ? greetingsZh : greetingsEn
-
-  const skip = () => {
-    setPhase('complete')
-    onComplete()
-  }
+  const [phase, setPhase] = useState('show')
+  const [index, setIndex] = useState(0)
+  const words = greetings[language] ?? greetings.en
 
   useEffect(() => {
-    // Honor reduced-motion: skip the intro entirely
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (prefersReducedMotion) {
-      setPhase('complete')
       onComplete()
       return
     }
 
-    // Cycle through greetings every 1 second
-    const greetingTimer = setInterval(() => {
-      setGreetingIndex(prev => (prev + 1) % greetings.length)
-    }, 1000)
+    const cycleTimer = window.setInterval(() => {
+      setIndex((current) => Math.min(current + 1, words.length - 1))
+    }, 650)
+    const fadeTimer = window.setTimeout(() => setPhase('fade'), 1900)
+    const completeTimer = window.setTimeout(onComplete, 2300)
 
-    // Start fade out after showing all greetings (3 seconds total)
-    const fadeTimer = setTimeout(() => {
-      setPhase('fadeout')
-      clearInterval(greetingTimer)
-    }, 3000)
-
-    // After fade out animation, mark complete
-    const completeTimer = setTimeout(() => {
-      setPhase('complete')
-      onComplete()
-    }, 3500)
-
-    // ESC to skip
-    const handleKey = (e) => {
-      if (e.key === 'Escape') {
-        clearInterval(greetingTimer)
-        clearTimeout(fadeTimer)
-        clearTimeout(completeTimer)
-        setPhase('complete')
-        onComplete()
-      }
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') onComplete()
     }
-    window.addEventListener('keydown', handleKey)
+    window.addEventListener('keydown', handleKeyDown)
 
     return () => {
-      clearInterval(greetingTimer)
-      clearTimeout(fadeTimer)
-      clearTimeout(completeTimer)
-      window.removeEventListener('keydown', handleKey)
+      window.clearInterval(cycleTimer)
+      window.clearTimeout(fadeTimer)
+      window.clearTimeout(completeTimer)
+      window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [greetings.length, onComplete])
-
-  const currentGreeting = greetings[greetingIndex]
+  }, [onComplete, words.length])
 
   return (
     <AnimatePresence>
-      {phase !== 'complete' && (
-        <motion.div
-          initial={{ opacity: 1 }}
-          animate={{ opacity: phase === 'fadeout' ? 0 : 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-aurora-bg"
+      <motion.div
+        initial={{ opacity: 1 }}
+        animate={{ opacity: phase === 'fade' ? 0 : 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.35 }}
+        className="fixed inset-0 z-50 flex items-center justify-center bg-aurora-bg"
+      >
+        <button
+          type="button"
+          onClick={onComplete}
+          className="absolute right-6 top-6 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-medium uppercase tracking-wider text-slate-300 transition-colors hover:bg-white/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-aurora-purple/60"
         >
-          {/* Skip button */}
-          <button
-            onClick={skip}
-            className="absolute top-6 right-6 z-20 px-4 py-2 rounded-full text-xs font-medium tracking-wider uppercase text-slate-300 bg-white/5 border border-white/10 hover:bg-white/10 hover:text-white transition-colors"
-            aria-label={language === 'zh' ? '跳过开场动画' : 'Skip intro'}
+          {language === 'zh' ? '跳过' : 'Skip'}
+        </button>
+
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,rgba(168,85,247,0.24),transparent_42%)]" />
+        <div className="glass-card relative px-12 py-10 text-center shadow-[0_24px_80px_rgba(168,85,247,0.18)] md:px-20 md:py-14">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 rounded-3xl bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.14),transparent_34%)]"
+          />
+          <motion.h1
+            key={`${language}-${index}`}
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+            className="gradient-text relative text-6xl font-bold md:text-8xl"
           >
-            {language === 'zh' ? '跳过' : 'Skip'}
-          </button>
-
-          {/* Liquid glass blobs */}
-          <motion.div
-            animate={{
-              scale: [1, 1.5, 1],
-              rotate: [0, 180, 0],
-              borderRadius: ['30%', '50%', '70%', '50%', '30%']
-            }}
-            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-br from-aurora-purple/40 to-aurora-pink/30 blur-3xl"
-          />
-          <motion.div
-            animate={{
-              scale: [1.3, 1, 1.3],
-              rotate: [0, -180, 0],
-              borderRadius: ['50%', '30%', '50%', '70%', '50%']
-            }}
-            transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-gradient-to-br from-aurora-cyan/40 to-aurora-blue/30 blur-3xl"
-          />
-          <motion.div
-            animate={{
-              x: [0, 80, 40, 0],
-              y: [0, -40, 40, 0],
-              borderRadius: ['40%', '60%', '40%'],
-              scale: [1, 1.4, 1]
-            }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-gradient-to-br from-aurora-orange/30 to-aurora-yellow/20 blur-3xl"
-          />
-
-          {/* Glass card with Greeting */}
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{
-              scale: phase === 'fadeout' ? 1.2 : 1,
-              opacity: phase === 'fadeout' ? 0 : 1
-            }}
-            transition={{
-              scale: { type: 'spring', stiffness: 100, damping: 15 },
-              opacity: { duration: 0.5 }
-            }}
-            className="relative z-10"
-          >
-            <div className="glass-card px-12 md:px-20 py-10 md:py-16 rounded-3xl">
-              <motion.h1
-                key={currentGreeting}
-                initial={{ y: 20, opacity: 0, rotate: -5 }}
-                animate={{
-                  y: 0,
-                  opacity: 1,
-                  rotate: 0,
-                  backgroundPosition: ['0% 50%', '100% 50%', '0% 50%']
-                }}
-                exit={{ y: -20, opacity: 0, rotate: 5 }}
-                transition={{
-                  y: { type: 'spring', stiffness: 200, damping: 20 },
-                  opacity: { type: 'spring', stiffness: 200, damping: 20 },
-                  rotate: { type: 'spring', stiffness: 200, damping: 20 },
-                  backgroundPosition: { duration: 4, repeat: Infinity, ease: "easeInOut" }
-                }}
-                className="text-6xl md:text-8xl font-display font-bold gradient-text"
-                style={{
-                  backgroundSize: '200% 200%'
-                }}
-              >
-                {currentGreeting}
-              </motion.h1>
-
-              {/* Subtitle that appears */}
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: phase === 'fadeout' ? 0 : 0.7 }}
-                transition={{ delay: 0.5, duration: 0.5 }}
-                className="text-slate-300 text-sm md:text-base mt-4 tracking-widest uppercase"
-              >
-                {language === 'zh' ? '正在加载精彩内容...' : 'Loading amazing content...'}
-              </motion.p>
-
-              {/* Loading dots */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: phase === 'fadeout' ? 0 : 1 }}
-                transition={{ delay: 0.8 }}
-                className="flex gap-2 justify-center mt-6"
-              >
-                {[0, 1, 2].map(i => (
-                  <motion.div
-                    key={i}
-                    animate={{
-                      scale: [1, 1.3, 1],
-                      opacity: [0.4, 1, 0.4]
-                    }}
-                    transition={{
-                      duration: 1,
-                      repeat: Infinity,
-                      delay: i * 0.2
-                    }}
-                    className="w-2 h-2 rounded-full bg-gradient-to-r from-aurora-purple to-aurora-cyan"
-                  />
-                ))}
-              </motion.div>
-            </div>
-
-            {/* Pulsing glow effect */}
-            <motion.div
-              animate={{
-                scale: [1, 1.15, 1],
-                opacity: [0.3, 0.6, 0.3]
-              }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="absolute inset-0 bg-gradient-to-r from-aurora-purple to-aurora-cyan rounded-3xl blur-2xl -z-10"
-            />
-          </motion.div>
-
-          {/* Floating liquid shapes */}
-          <motion.div
-            animate={{
-              rotate: 360,
-              borderRadius: ['10%', '40%', '10%']
-            }}
-            transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-            className="absolute top-20 right-20 w-16 h-16 border-2 border-aurora-purple/30 backdrop-blur-md"
-          />
-          <motion.div
-            animate={{
-              rotate: -360,
-              scale: [1, 1.3, 1]
-            }}
-            transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
-            className="absolute bottom-32 left-24 w-10 h-10 bg-gradient-to-br from-aurora-cyan/30 to-aurora-blue/30 backdrop-blur-md rounded-full"
-          />
-          <motion.div
-            animate={{
-              y: [0, -30, 0],
-              rotate: [0, 45, 0]
-            }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-1/3 right-1/4 w-8 h-8 border border-aurora-pink/40 backdrop-blur-sm rotate-45"
-          />
-        </motion.div>
-      )}
+            {words[index]}
+          </motion.h1>
+          <p className="relative mt-5 text-sm uppercase tracking-[0.32em] text-slate-400">
+            {language === 'zh' ? '正在进入简历' : 'Opening resume'}
+          </p>
+        </div>
+      </motion.div>
     </AnimatePresence>
   )
 }

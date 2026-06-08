@@ -16,7 +16,7 @@
 
   body {
     @apply bg-aurora-bg text-white antialiased;
-    font-family: 'Outfit', system-ui, sans-serif;
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     overflow-x: hidden;
   }
 
